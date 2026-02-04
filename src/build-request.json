@@ -1,126 +1,73 @@
 {
   "kind": "build_request",
-  "title": "Build 'My Goals : 2026' Goal Tracker dashboard with 7 color-coded cards",
+  "title": "Match 100% completion celebration modal UI/message to provided reference in Time-Bound targets - 2026",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Create a dashboard page titled \"My Goals : 2026\" that visually matches the provided reference image, featuring a single horizontal row of exactly 7 vertical goal cards in this order and color scheme: (1) \"Career-Professional\" (Yellow), (2) \"Personal Development\" (Orange), (3) \"Laboral-Job\" (Red/Salmon), (4) \"Family and Sentimental\" (Pink), (5) \"Financial\" (Purple), (6) \"Health\" (Blue), (7) \"Academic-University\" (Light Green).",
+      "id": "REQ-12",
+      "text": "In the “Time-Bound targets - 2026” (Yearly Summary Table) view, ensure the 100% completion celebration modal visually and textually matches the provided reference screenshots (image-6.png, image-7.png), including the same headline style, emoji usage, and message copy.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-3"
         ],
         "quotes": [
-          "Create a dynamic and interactive Goal Tracker dashboard called 'My Goals : 2026' like in the picture\n\nLayout: Display 7 vertical cards in a single horizontal row. The cards should be: Career-Professional (Yellow), Personal Development (Orange), Laboral-Job (Red/Salmon), Family and Sentimental (Pink), Financial (Purple), Health (Blue), and Academic-University (Light Green)."
+          "In the view Time-Bound targets - 2026, If a month reaches 100% completion, display a Modal with the same message and image like in the picture."
         ]
       },
       "acceptanceCriteria": [
-        "The page shows the title text \"My Goals : 2026\".",
-        "Seven cards render in a single left-to-right row in the specified order.",
-        "Each card has a distinct header/background color that clearly matches the requested color family (yellow/orange/red-salmon/pink/purple/blue/light green).",
-        "Overall layout is visually aligned with the uploaded reference image (card proportions, spacing, header style, and list-like goals presentation)."
+        "When a month transitions to 100% completion, the modal appears and the headline and body text match the reference screenshots (including punctuation/ellipsis and emojis).",
+        "The modal retains a close (X) control in the top-right and can be dismissed via the X and the secondary action without breaking the summary table interaction."
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Apply the Lora font in italic style to all card titles and all goal text across the dashboard.",
+      "id": "REQ-13",
+      "text": "Update the celebration modal media area so that, when no user selfie has been selected yet, it displays a built-in default celebration image matching the reference screenshot’s layout (instead of an empty placeholder area). Keep the existing behavior to show the user-selected selfie once provided.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-3"
         ],
         "quotes": [
-          "Use the Lora font in Italic for all titles and goal text."
+          "display a Modal with the same message and image like in the picture."
         ]
       },
       "acceptanceCriteria": [
-        "Lora is loaded in the frontend and used for the dashboard typography.",
-        "All card titles are rendered using Lora italic.",
-        "All goal item text is rendered using Lora italic."
+        "Opening the modal without selecting a selfie shows the default celebration image.",
+        "After selecting a selfie, the modal shows the selected selfie preview (replacing the default image).",
+        "Closing and reopening the modal resets back to the default celebration image (until a new selfie is selected)."
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Inside each card, render a list of goals with a dashed separator line between goal items.",
+      "id": "REQ-14",
+      "text": "Add the new default celebration image as a static asset under `frontend/public/assets/generated/` and reference it directly from the modal component (do not route images through the backend).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-3"
         ],
         "quotes": [
-          "Each card should have a dashed separator line between goals."
+          "display a Modal with the same message and image like in the picture."
         ]
       },
       "acceptanceCriteria": [
-        "Each card displays multiple goal items in a vertical list.",
-        "A dashed divider is visible between consecutive goal items (not just between header and first item)."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Implement interactive goal items so each goal can be marked complete/incomplete via a checkbox-style control, updating the UI state immediately.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-2"
-        ],
-        "quotes": [
-          "Create a dynamic and interactive Goal Tracker dashboard"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Each goal item has a clickable checkbox control.",
-        "Toggling a checkbox updates only that goal’s completed state in the UI without a full page refresh.",
-        "Completed vs incomplete goals are visually distinguishable (e.g., checkbox state and/or subtle text styling), while keeping the overall look consistent with the reference image."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Enforce the row behavior: all cards must stay on one row (no wrapping). Horizontal scrolling must be disabled when there are 7 or fewer cards, and enabled only when there are more than 7 cards.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-2"
-        ],
-        "quotes": [
-          "Behavior: All cards must stay in one row. no horizontal scrolling only If there are more than 7 cards."
-        ]
-      },
-      "acceptanceCriteria": [
-        "With exactly 7 cards, cards do not wrap and there is no horizontal scrollbar.",
-        "If the card count is increased beyond 7 (e.g., by adding an 8th card in data), horizontal overflow becomes scrollable so the additional card(s) can be reached.",
-        "The layout remains a single-row layout in both cases (no wrapping)."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Add a button labeled \"See goals per month\" at the end (right side) of the card row.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-2"
-        ],
-        "quotes": [
-          "At the end , add a button \"See goals per month\""
-        ]
-      },
-      "acceptanceCriteria": [
-        "A button with exact text \"See goals per month\" appears after the last card in the row.",
-        "The button is reachable/visible in the row layout (and via horizontal scroll if card overflow is enabled)."
+        "The default celebration image is present in `frontend/public/assets/generated/` and loads correctly in the modal in dev and production builds."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (compose them instead).",
-    "Do not modify any frontend files listed as immutable in SYSTEM_CONTEXT."
+    "Do not modify files under `frontend/src/components/ui` (compose existing UI components instead).",
+    "Do not change backend canister logic; this modal behavior remains client-only.",
+    "Keep the existing trigger logic: the modal opens only when a month transitions to 100% completion and the month has at least one goal."
   ],
   "nonGoals": [
-    "Backend persistence of goals and checkbox states (no requirement to store data in Motoko canister unless explicitly requested later).",
-    "Authentication/Internet Identity integration."
+    "Adding backend persistence for the Yearly Summary checkbox state.",
+    "Implementing actual sharing to social media or external services."
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "Photo-like celebratory portrait image for modal default state (celebration-default-photo.dim_900x700.png)"
+    ],
     "edits": []
   }
 }

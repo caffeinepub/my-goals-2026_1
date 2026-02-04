@@ -1,125 +1,60 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "My Goals : 2026 Goal Tracker Dashboard (7-card single-row)",
+  "title": "Yearly Summary: 100% completion celebration modal reference-match + default image",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Create the \"My Goals : 2026\" dashboard page with a single horizontal row of 7 ordered, color-coded vertical goal cards matching the reference layout.",
+      "id": "REQ-12",
+      "summary": "Match the 100% completion celebration modal headline style, emoji usage, and message copy to the reference screenshots in the “Time-Bound targets - 2026” view.",
       "acceptanceCriteria": [
-        "The page shows the title text \"My Goals : 2026\".",
-        "Seven cards render in a single left-to-right row in the specified order.",
-        "Each card has a distinct header/background color that clearly matches the requested color family (yellow/orange/red-salmon/pink/purple/blue/light green).",
-        "Overall layout is visually aligned with the uploaded reference image (card proportions, spacing, header style, and list-like goals presentation)."
+        "When a month transitions to 100% completion, the modal appears and the headline and body text match the reference screenshots (including punctuation/ellipsis and emojis).",
+        "The modal retains a close (X) control in the top-right and can be dismissed via the X and the secondary action without breaking the summary table interaction."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/GoalsDashboard.tsx",
-          "operation": "create",
-          "description": "Implement the dashboard UI including the title and the 7 required cards in the exact order and color scheme; structure the page to visually match the reference image (card proportions, spacing, header style, list-like presentation)."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "create",
-          "description": "Wire the GoalsDashboard page into the app as the primary rendered view so it is reachable when the app loads."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "create",
-          "description": "Add global styles needed to support the dashboard’s layout fidelity (e.g., baseline page background/spacing) without modifying any files under frontend/src/components/ui."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Load and apply the Lora font in italic to all card titles and all goal text on the dashboard.",
-      "acceptanceCriteria": [
-        "Lora is loaded in the frontend and used for the dashboard typography.",
-        "All card titles are rendered using Lora italic.",
-        "All goal item text is rendered using Lora italic."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/index.html",
+          "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
           "operation": "modify",
-          "description": "Load the Lora font (including italic) in the document head so it is available to the dashboard typography."
+          "description": "Update the modal headline/body copy and emoji usage to exactly match the reference screenshots (image-6.png, image-7.png), while continuing to compose existing shadcn-ui Dialog/Button components (verify the component's usage instructions before implementing). Keep existing close (X) and secondary action dismissal behavior intact."
         },
         {
           "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Define a reusable CSS class (or utility composition) that applies Lora with italic styling, intended to be used by all card titles and goal text."
+          "description": "Adjust the existing .celebration-modal and related styles (e.g., header typography, spacing, media card layout) so the modal visually matches the reference screenshots without modifying any files under frontend/src/components/ui."
+        }
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "summary": "Show a built-in default celebration image in the modal when no selfie is selected, and revert to default on reopen until a new selfie is chosen.",
+      "acceptanceCriteria": [
+        "Opening the modal without selecting a selfie shows the default celebration image.",
+        "After selecting a selfie, the modal shows the selected selfie preview (replacing the default image).",
+        "Closing and reopening the modal resets back to the default celebration image (until a new selfie is selected)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
+          "operation": "modify",
+          "description": "Update the media area rendering logic to display the default image from frontend/public/assets/generated/celebration-default-photo.dim_900x700.png when selectedImage is null, and to replace it with the user-selected selfie preview when provided. Ensure close/reopen resets to the default (including clearing any file input value/object URL cleanup). Continue composing existing shadcn-ui components (verify the component's usage instructions before implementing)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "summary": "Add and wire a new default celebration image as a static frontend asset used directly by the modal (no backend routing).",
+      "acceptanceCriteria": [
+        "The default celebration image is present in frontend/public/assets/generated/ and loads correctly in the modal in dev and production builds."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/celebration-default-photo.dim_900x700.png",
+          "operation": "create",
+          "description": "Add the new default celebration image asset (photo-like celebratory portrait) at frontend/public/assets/generated/celebration-default-photo.dim_900x700.png so it can be referenced directly by the modal."
         },
         {
-          "path": "frontend/src/pages/GoalsDashboard.tsx",
+          "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
           "operation": "modify",
-          "description": "Apply the Lora italic typography styling to all card titles and all goal item text on the dashboard."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Render each card’s goals as a vertical list with dashed separators between goal items.",
-      "acceptanceCriteria": [
-        "Each card displays multiple goal items in a vertical list.",
-        "A dashed divider is visible between consecutive goal items (not just between header and first item)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/GoalsDashboard.tsx",
-          "operation": "modify",
-          "description": "Implement per-card goal lists and add dashed separators between consecutive goal items (e.g., a dashed divider/border between list rows) consistent with the reference image."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Add interactive checkbox-style controls for each goal item to toggle complete/incomplete state with immediate UI updates.",
-      "acceptanceCriteria": [
-        "Each goal item has a clickable checkbox control.",
-        "Toggling a checkbox updates only that goal’s completed state in the UI without a full page refresh.",
-        "Completed vs incomplete goals are visually distinguishable (e.g., checkbox state and/or subtle text styling), while keeping the overall look consistent with the reference image."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/GoalsDashboard.tsx",
-          "operation": "modify",
-          "description": "Add local UI state for goal completion and a checkbox-style control per goal that toggles completed/incomplete immediately with subtle, reference-consistent visual differentiation."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Ensure cards stay on one non-wrapping row; disable horizontal scrolling at 7 or fewer cards and enable it only when more than 7 cards exist.",
-      "acceptanceCriteria": [
-        "With exactly 7 cards, cards do not wrap and there is no horizontal scrollbar.",
-        "If the card count is increased beyond 7 (e.g., by adding an 8th card in data), horizontal overflow becomes scrollable so the additional card(s) can be reached.",
-        "The layout remains a single-row layout in both cases (no wrapping)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/GoalsDashboard.tsx",
-          "operation": "modify",
-          "description": "Implement a single-row, no-wrap card container and conditionally toggle horizontal overflow behavior: hidden/disabled when card count <= 7 and scroll-enabled only when card count > 7."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add any necessary global styles to ensure horizontal scrollbar is not shown when overflow is disabled and to keep the single-row layout consistent across common browsers."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Add a \"See goals per month\" button at the end (right side) of the card row.",
-      "acceptanceCriteria": [
-        "A button with exact text \"See goals per month\" appears after the last card in the row.",
-        "The button is reachable/visible in the row layout (and via horizontal scroll if card overflow is enabled)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/GoalsDashboard.tsx",
-          "operation": "modify",
-          "description": "Add a button with the exact label \"See goals per month\" positioned after the 7th card within the same single-row container so it appears at the end/right side (and participates in conditional horizontal overflow behavior when applicable)."
+          "description": "Reference the static asset at frontend/public/assets/generated/celebration-default-photo.dim_900x700.png directly in the modal’s media area default state (no backend involvement). Continue composing existing shadcn-ui components (verify the component's usage instructions before implementing)."
         }
       ]
     }

@@ -1,11 +1,18 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Trash2, Plus } from 'lucide-react';
+import MonthSelectionModal from '@/components/MonthSelectionModal';
+import CenteredNotification from '@/components/CenteredNotification';
+import YearlySummaryTable from '@/components/YearlySummaryTable';
+import type { Month } from '@/lib/months';
 
 interface Goal {
   id: string;
   text: string;
   completed: boolean;
+  month?: Month;
 }
 
 interface GoalCard {
@@ -117,10 +124,78 @@ const initialCards: GoalCard[] = [
   },
 ];
 
+const STORAGE_KEY = 'goals-dashboard-cards';
+
 export default function GoalsDashboard() {
-  const [cards, setCards] = useState<GoalCard[]>(initialCards);
+  const [cards, setCards] = useState<GoalCard[]>(() => {
+    // Load from localStorage on initial mount
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return initialCards;
+      }
+    }
+    return initialCards;
+  });
+  const [editingGoal, setEditingGoal] = useState<{ cardId: string; goalId: string } | null>(null);
+  const [editText, setEditText] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // View state: 'dashboard' or 'summary'
+  const [view, setView] = useState<'dashboard' | 'summary'>('dashboard');
+
+  // Month selection modal state
+  const [monthModalOpen, setMonthModalOpen] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState<Month | null>(null);
+  const [pendingGoal, setPendingGoal] = useState<{ cardId: string; goalId: string } | null>(null);
+
+  // Notification state
+  const [notificationVisible, setNotificationVisible] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+
+  // Persist to localStorage whenever cards change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+  }, [cards]);
+
+  // Focus input when entering edit mode
+  useEffect(() => {
+    if (editingGoal && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editingGoal]);
 
   const toggleGoal = (cardId: string, goalId: string) => {
+    // Find the current goal state
+    const card = cards.find((c) => c.id === cardId);
+    const goal = card?.goals.find((g) => g.id === goalId);
+    
+    if (!goal) return;
+
+    // If goal is being checked (transitioning from uncompleted to completed)
+    const isBeingChecked = !goal.completed;
+
+    // If unchecking, clear the month assignment
+    if (!isBeingChecked) {
+      setCards((prevCards) =>
+        prevCards.map((card) =>
+          card.id === cardId
+            ? {
+                ...card,
+                goals: card.goals.map((goal) =>
+                  goal.id === goalId ? { ...goal, completed: false, month: undefined } : goal
+                ),
+              }
+            : card
+        )
+      );
+      return;
+    }
+
+    // Update the goal state immediately
     setCards((prevCards) =>
       prevCards.map((card) =>
         card.id === cardId
@@ -133,15 +208,200 @@ export default function GoalsDashboard() {
           : card
       )
     );
+
+    // If checking (not unchecking), open the month selection modal
+    if (isBeingChecked) {
+      setPendingGoal({ cardId, goalId });
+      setSelectedMonth(null);
+      setMonthModalOpen(true);
+    }
+  };
+
+  const handleMonthConfirm = () => {
+    if (!selectedMonth || !pendingGoal) return;
+
+    // Update the goal with the selected month
+    setCards((prevCards) =>
+      prevCards.map((card) =>
+        card.id === pendingGoal.cardId
+          ? {
+              ...card,
+              goals: card.goals.map((goal) =>
+                goal.id === pendingGoal.goalId ? { ...goal, month: selectedMonth } : goal
+              ),
+            }
+          : card
+      )
+    );
+
+    // Find the goal text for the notification
+    const card = cards.find((c) => c.id === pendingGoal.cardId);
+    const goal = card?.goals.find((g) => g.id === pendingGoal.goalId);
+
+    if (goal) {
+      // Show notification
+      setNotificationMessage(`The goal "${goal.text}" has been added to ${selectedMonth}`);
+      setNotificationVisible(true);
+    }
+
+    // Close modal and reset state
+    setMonthModalOpen(false);
+    setSelectedMonth(null);
+    setPendingGoal(null);
+  };
+
+  const handleMonthCancel = () => {
+    // Restore the goal to unchecked state
+    if (pendingGoal) {
+      setCards((prevCards) =>
+        prevCards.map((card) =>
+          card.id === pendingGoal.cardId
+            ? {
+                ...card,
+                goals: card.goals.map((goal) =>
+                  goal.id === pendingGoal.goalId ? { ...goal, completed: false } : goal
+                ),
+              }
+            : card
+        )
+      );
+    }
+
+    // Close modal and reset state
+    setMonthModalOpen(false);
+    setSelectedMonth(null);
+    setPendingGoal(null);
+  };
+
+  const handleModalOpenChange = (open: boolean) => {
+    if (!open) {
+      // If modal is being closed (not via Confirm), restore the goal
+      handleMonthCancel();
+    } else {
+      setMonthModalOpen(open);
+    }
+  };
+
+  const startEditing = (cardId: string, goalId: string, currentText: string) => {
+    setEditingGoal({ cardId, goalId });
+    setEditText(currentText);
+  };
+
+  const saveEdit = () => {
+    if (!editingGoal) return;
+
+    const trimmedText = editText.trim();
+    if (trimmedText) {
+      setCards((prevCards) =>
+        prevCards.map((card) =>
+          card.id === editingGoal.cardId
+            ? {
+                ...card,
+                goals: card.goals.map((goal) =>
+                  goal.id === editingGoal.goalId ? { ...goal, text: trimmedText } : goal
+                ),
+              }
+            : card
+        )
+      );
+    }
+
+    setEditingGoal(null);
+    setEditText('');
+  };
+
+  const cancelEdit = () => {
+    setEditingGoal(null);
+    setEditText('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveEdit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEdit();
+    }
+  };
+
+  const deleteGoal = (cardId: string, goalId: string) => {
+    setCards((prevCards) =>
+      prevCards.map((card) =>
+        card.id === cardId
+          ? {
+              ...card,
+              goals: card.goals.filter((goal) => goal.id !== goalId),
+            }
+          : card
+      )
+    );
+  };
+
+  const addGoal = (cardId: string) => {
+    const newGoalId = `${cardId}-${Date.now()}`;
+    setCards((prevCards) =>
+      prevCards.map((card) =>
+        card.id === cardId
+          ? {
+              ...card,
+              goals: [
+                ...card.goals,
+                { id: newGoalId, text: 'New goal', completed: false },
+              ],
+            }
+          : card
+      )
+    );
+    // Start editing the new goal immediately
+    setTimeout(() => {
+      startEditing(cardId, newGoalId, 'New goal');
+    }, 0);
   };
 
   const shouldEnableScroll = cards.length > 7;
 
+  // If in summary view, render the table
+  if (view === 'summary') {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="bg-black py-4">
+          <h1 className="text-center text-white text-2xl font-lora-italic">LIFETIME GOALS</h1>
+        </header>
+
+        {/* Yearly Summary Table */}
+        <main className="p-6">
+          <YearlySummaryTable 
+            cards={cards} 
+            onBackToDashboard={() => setView('dashboard')}
+          />
+        </main>
+
+        {/* Footer */}
+        <footer className="py-6 text-center text-sm text-muted-foreground">
+          <p className="font-lora-italic">
+            © 2026. Built with love using{' '}
+            <a
+              href="https://caffeine.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-foreground transition-colors"
+            >
+              caffeine.ai
+            </a>
+          </p>
+        </footer>
+      </div>
+    );
+  }
+
+  // Dashboard view
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-black py-4">
-        <h1 className="text-center text-white text-2xl font-lora-italic">My Goals : 2026</h1>
+        <h1 className="text-center text-white text-2xl font-lora-italic">LIFETIME GOALS</h1>
       </header>
 
       {/* Cards Container */}
@@ -164,62 +424,103 @@ export default function GoalsDashboard() {
             >
               {/* Card Header */}
               <div
-                className="rounded-t-lg px-4 py-3 text-center font-lora-italic font-semibold"
+                className="rounded-t-lg px-4 py-3 text-center font-lora-italic font-semibold flex items-center justify-center gap-2"
                 style={{
                   backgroundColor: card.color,
                   color: card.textColor,
                 }}
               >
-                <span className="mr-2">{card.emoji}</span>
-                {card.title}
+                <span className="mr-1">{card.emoji}</span>
+                <span>{card.title}</span>
               </div>
 
               {/* Card Body */}
               <div className="p-4">
-                {card.goals.map((goal, index) => (
-                  <div key={goal.id}>
-                    <div className="flex items-start gap-3 py-3">
-                      <Checkbox
-                        id={goal.id}
-                        checked={goal.completed}
-                        onCheckedChange={() => toggleGoal(card.id, goal.id)}
-                        className="mt-1 flex-shrink-0"
-                      />
-                      <label
-                        htmlFor={goal.id}
-                        className={`flex-1 cursor-pointer font-lora-italic text-sm leading-relaxed ${
-                          goal.completed ? 'opacity-60' : ''
-                        }`}
-                        style={{ color: 'oklch(0.2 0 0)' }}
-                      >
-                        {goal.text}
-                      </label>
+                {card.goals.map((goal, index) => {
+                  const isLastGoal = index === card.goals.length - 1;
+                  return (
+                    <div key={goal.id}>
+                      <div className="group flex items-start gap-3 py-3 focus-within:bg-muted/30 hover:bg-muted/30 rounded transition-colors relative">
+                        <Checkbox
+                          id={goal.id}
+                          checked={goal.completed}
+                          onCheckedChange={() => toggleGoal(card.id, goal.id)}
+                          className="mt-1 flex-shrink-0"
+                        />
+                        {editingGoal?.cardId === card.id && editingGoal?.goalId === goal.id ? (
+                          <Input
+                            ref={inputRef}
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            onBlur={saveEdit}
+                            onKeyDown={handleKeyDown}
+                            className="flex-1 font-lora-italic text-sm leading-relaxed h-auto py-1 px-2"
+                            style={{ color: 'oklch(0.2 0 0)' }}
+                          />
+                        ) : (
+                          <label
+                            htmlFor={goal.id}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              startEditing(card.id, goal.id, goal.text);
+                            }}
+                            className={`flex-1 cursor-pointer font-lora-italic text-sm leading-relaxed pr-16 ${
+                              goal.completed ? 'opacity-60' : ''
+                            }`}
+                            style={{ color: 'oklch(0.2 0 0)' }}
+                          >
+                            {goal.text}
+                          </label>
+                        )}
+                        
+                        {/* Action buttons - always reserve space, show on hover/focus-within */}
+                        <div className="absolute right-0 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+                          {isLastGoal && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => addGoal(card.id)}
+                              aria-label="Add new goal"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
+                            onClick={() => deleteGoal(card.id, goal.id)}
+                            aria-label="Delete goal"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {index < card.goals.length - 1 && (
+                        <div
+                          className="border-t"
+                          style={{ borderStyle: 'dashed', borderColor: 'oklch(0.85 0 0)' }}
+                        />
+                      )}
                     </div>
-                    {index < card.goals.length - 1 && (
-                      <div
-                        className="border-t"
-                        style={{ borderStyle: 'dashed', borderColor: 'oklch(0.85 0 0)' }}
-                      />
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}
+        </div>
 
-          {/* See goals per month button */}
-          <div className="flex-shrink-0 flex items-center">
-            <Button
-              variant="outline"
-              className="h-auto whitespace-nowrap font-lora-italic"
-              style={{
-                minHeight: '60px',
-                padding: '0 24px',
-              }}
-            >
-              See goals per month
-            </Button>
-          </div>
+        {/* See goals per month button - below cards */}
+        <div className="mt-8 flex justify-center">
+          <Button
+            variant="default"
+            size="lg"
+            className="font-lora-italic"
+            onClick={() => setView('summary')}
+          >
+            See goals per month
+          </Button>
         </div>
       </main>
 
@@ -237,6 +538,23 @@ export default function GoalsDashboard() {
           </a>
         </p>
       </footer>
+
+      {/* Month Selection Modal */}
+      <MonthSelectionModal
+        open={monthModalOpen}
+        onOpenChange={handleModalOpenChange}
+        selectedMonth={selectedMonth}
+        onMonthSelect={setSelectedMonth}
+        onConfirm={handleMonthConfirm}
+        onCancel={handleMonthCancel}
+      />
+
+      {/* Centered Notification */}
+      <CenteredNotification
+        message={notificationMessage}
+        visible={notificationVisible}
+        onDismiss={() => setNotificationVisible(false)}
+      />
     </div>
   );
 }

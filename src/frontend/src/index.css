@@ -90,3 +90,87 @@
         font-style: italic;
     }
 }
+
+@layer components {
+    /* Enhanced visibility for summary table checkboxes */
+    .summary-table-checkbox {
+        @apply h-5 w-5;
+        border-width: 2px;
+        border-color: oklch(0.4 0 0);
+        background-color: oklch(1 0 0);
+    }
+    
+    .summary-table-checkbox:hover {
+        border-color: oklch(0.3 0 0);
+        background-color: oklch(0.97 0 0);
+    }
+    
+    .summary-table-checkbox:focus-visible {
+        @apply outline-none ring-2 ring-offset-2;
+        ring-color: oklch(0.5 0 0);
+    }
+    
+    .summary-table-checkbox[data-state="checked"] {
+        background-color: oklch(0.3 0 0);
+        border-color: oklch(0.3 0 0);
+    }
+    
+    .summary-table-checkbox[data-state="checked"]:hover {
+        background-color: oklch(0.25 0 0);
+        border-color: oklch(0.25 0 0);
+    }
+
+    /* Statistics section styling */
+    .statistics-section-header td {
+        background-color: oklch(0.96 0.03 85);
+    }
+
+    /* Force white background for month cells in statistics header row */
+    .yearly-summary-table .statistics-section-header td:not(:first-child) {
+        background-color: oklch(1 0 0) !important;
+    }
+
+    .statistics-section-row td {
+        background-color: oklch(0.97 0.02 85);
+    }
+
+    /* Celebration modal styles */
+    .celebration-modal {
+        @apply relative;
+    }
+
+    .confetti-overlay-container {
+        @apply absolute inset-0 pointer-events-none overflow-hidden;
+        z-index: 1;
+    }
+
+    .confetti-overlay-image {
+        @apply w-full h-full object-cover opacity-30;
+        mix-blend-mode: multiply;
+    }
+
+    .media-preview-container {
+        @apply relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-muted;
+    }
+
+    .media-preview-image {
+        @apply w-full h-full object-cover;
+    }
+
+    .media-placeholder {
+        @apply w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50;
+    }
+
+    .media-placeholder-content {
+        @apply flex flex-col items-center justify-center text-center;
+    }
+
+    .badge-overlay {
+        @apply absolute bottom-4 left-1/2 -translate-x-1/2 w-[85%] max-w-[400px];
+        z-index: 10;
+    }
+
+    .badge-image {
+        @apply w-full h-auto drop-shadow-lg;
+    }
+}

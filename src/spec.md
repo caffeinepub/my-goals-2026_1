@@ -1,14 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Build a “My Goals : 2026” dashboard that matches the provided reference image, showing 7 color-coded goal cards in one horizontal row with interactive checkboxes.
+**Goal:** In “Time-Bound targets - 2026” (Yearly Summary Table), update the 100% completion celebration modal so its UI, copy, emoji usage, and default media match the provided reference screenshots.
 
 **Planned changes:**
-- Create a dashboard page titled **"My Goals : 2026"** with exactly **7 vertical cards** in a single left-to-right row, in this order and color families: Career-Professional (yellow), Personal Development (orange), Laboral-Job (red/salmon), Family and Sentimental (pink), Financial (purple), Health (blue), Academic-University (light green).
-- Load and apply **Lora (italic)** font for all card titles and all goal item text.
-- Inside each card, render a vertical list of goals with **dashed separators between each goal item**.
-- Add checkbox-style controls per goal item to toggle **complete/incomplete** state with immediate UI updates and clear visual distinction.
-- Enforce **no wrapping** for the card row; disable horizontal scrolling when there are **7 or fewer** cards, and enable horizontal scrolling only when there are **more than 7** cards.
-- Add a button at the end of the row labeled **"See goals per month"**.
+- Adjust the celebration modal’s headline and body copy to match the reference screenshots exactly (including punctuation/ellipsis and emojis), while keeping the close (X) in the top-right.
+- Update the modal media area to show a built-in default celebration image when no selfie has been selected yet, and switch to the user-selected selfie once provided.
+- Ensure closing and reopening the modal resets the media back to the default image until a new selfie is selected.
+- Add the default celebration image as a static asset under `frontend/public/assets/generated/` and reference it directly from the modal (client-only).
 
-**User-visible outcome:** Users see a one-row, 7-card “My Goals : 2026” dashboard styled like the reference, can check/uncheck goals interactively, and can access a “See goals per month” button at the end of the row.
+**User-visible outcome:** When a month reaches 100% completion, users see a celebration modal that matches the reference design and message, includes a default celebration image until they choose a selfie, and can be dismissed via the X or “Maybe Later” without disrupting the summary table.

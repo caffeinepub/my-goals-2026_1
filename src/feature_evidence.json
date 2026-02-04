@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-dashboard-page-titled-my-goals-2026-that-visually-matches-the-provided-reference-image-featuring-a-single-horizontal-row-of-exactly-7-vertical-goal-cards-in-this-order-and-color-scheme-1-career-professional-yellow-2-personal-development-orange-3-laboral-job-red-salmon-4-family-and-sentimental-pink-5-financial-purple-6-health-blue-7-academic-university-light-green",
-      "featureTitle": "Create a dashboard page titled \"My Goals : 2026\" that visually matches the provided reference image, featuring a single horizontal row of exactly 7 vertical goal cards in this order and color scheme: (1) \"Career-Professional\" (Yellow), (2) \"Personal Development\" (Orange), (3) \"Laboral-Job\" (Red/Salmon), (4) \"Family and Sentimental\" (Pink), (5) \"Financial\" (Purple), (6) \"Health\" (Blue), (7) \"Academic-University\" (Light Green).",
+      "featureId": "feature-in-the-time-bound-targets-2026-yearly-summary-table-view-ensure-the-100-completion-celebration-modal-visually-and-textually-matches-the-provided-reference-screenshots-image-6-png-image-7-png-including-the-same-headline-style-emoji-usage-and-message-copy",
+      "featureTitle": "In the “Time-Bound targets - 2026” (Yearly Summary Table) view, ensure the 100% completion celebration modal visually and textually matches the provided reference screenshots (image-6.png, image-7.png), including the same headline style, emoji usage, and message copy.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/index.css",
-        "frontend/src/pages/GoalsDashboard.tsx"
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -17,17 +15,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-12"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-apply-the-lora-font-in-italic-style-to-all-card-titles-and-all-goal-text-across-the-dashboard",
-      "featureTitle": "Apply the Lora font in italic style to all card titles and all goal text across the dashboard.",
+      "featureId": "feature-update-the-celebration-modal-media-area-so-that-when-no-user-selfie-has-been-selected-yet-it-displays-a-built-in-default-celebration-image-matching-the-reference-screenshot-s-layout-instead-of-an-empty-placeholder-area-keep-the-existing-behavior-to-show-the-user-selected-selfie-once-provided",
+      "featureTitle": "Update the celebration modal media area so that, when no user selfie has been selected yet, it displays a built-in default celebration image matching the reference screenshot’s layout (instead of an empty placeholder area). Keep the existing behavior to show the user-selected selfie once provided.",
       "files": [
-        "frontend/index.html",
-        "frontend/src/index.css",
-        "frontend/src/pages/GoalsDashboard.tsx"
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -37,15 +33,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-13"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-inside-each-card-render-a-list-of-goals-with-a-dashed-separator-line-between-goal-items",
-      "featureTitle": "Inside each card, render a list of goals with a dashed separator line between goal items.",
+      "featureId": "feature-add-the-new-default-celebration-image-as-a-static-asset-under-frontend-public-assets-generated-and-reference-it-directly-from-the-modal-component-do-not-route-images-through-the-backend",
+      "featureTitle": "Add the new default celebration image as a static asset under `frontend/public/assets/generated/` and reference it directly from the modal component (do not route images through the backend).",
       "files": [
-        "frontend/src/pages/GoalsDashboard.tsx"
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -55,62 +51,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-interactive-goal-items-so-each-goal-can-be-marked-complete-incomplete-via-a-checkbox-style-control-updating-the-ui-state-immediately",
-      "featureTitle": "Implement interactive goal items so each goal can be marked complete/incomplete via a checkbox-style control, updating the UI state immediately.",
-      "files": [
-        "frontend/src/pages/GoalsDashboard.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-enforce-the-row-behavior-all-cards-must-stay-on-one-row-no-wrapping-horizontal-scrolling-must-be-disabled-when-there-are-7-or-fewer-cards-and-enabled-only-when-there-are-more-than-7-cards",
-      "featureTitle": "Enforce the row behavior: all cards must stay on one row (no wrapping). Horizontal scrolling must be disabled when there are 7 or fewer cards, and enabled only when there are more than 7 cards.",
-      "files": [
-        "frontend/src/index.css",
-        "frontend/src/pages/GoalsDashboard.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-button-labeled-see-goals-per-month-at-the-end-right-side-of-the-card-row",
-      "featureTitle": "Add a button labeled \"See goals per month\" at the end (right side) of the card row.",
-      "files": [
-        "frontend/src/pages/GoalsDashboard.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
+        "REQ-14"
       ],
       "confidence": "high"
     }

@@ -1,8 +1,22 @@
 {
   "frontend/src/App.tsx": "Main application entry point that renders the GoalsDashboard component.",
-  "frontend/src/pages/GoalsDashboard.tsx": "Complete goal tracker dashboard with 7 color-coded cards displaying goals with checkboxes, dashed separators, and a \"See goals per month\" button; implements local state management for goal completion toggling.",
-  "frontend/src/index.css": "Global styles with OKLCH color system, Lora font import, and custom utility class for Lora italic typography.",
+  "frontend/src/pages/GoalsDashboard.tsx": "Complete goal tracker dashboard with 7 color-coded cards, checkboxes that trigger a month-selection modal, inline editing, hover-revealed action icons, delete/add functionality, localStorage persistence with month assignments, view toggle between dashboard and yearly summary table (now without passing toggle handler to summary), centered notification on goal confirmation, goal restoration on cancel, and month clearing on uncheck.",
+  "frontend/src/index.css": "Global styles with OKLCH color system, Lora font import, custom utility class for Lora italic typography, enhanced checkbox styling for the summary table, distinct light yellow/cream tinted backgrounds for the Statistics section rows, pure white backgrounds for the 12 month cells in the statistics header row, and celebration modal styles including confetti overlay, media preview container, badge overlay positioning, and placeholder styling.",
   "frontend/index.html": "HTML entry point with Lora font preloaded from Google Fonts.",
   "frontend/tailwind.config.js": "Tailwind configuration extended with Lora font family definition.",
-  "frontend/src/hooks/useQueries.ts": "Empty placeholder file for future backend integration; current version uses local state only."
+  "frontend/src/hooks/useQueries.ts": "Empty placeholder file for future backend integration; current version uses local state only.",
+  "frontend/src/components/MonthSelectionModal.tsx": "Reusable modal component using shadcn Dialog that displays a 12-month grid for single-selection with Confirm (primary) and Cancel (secondary) buttons, featuring an opaque background and consuming the shared months constant.",
+  "frontend/src/components/CenteredNotification.tsx": "A lightweight notification component that displays a centered message on the viewport with auto-dismiss functionality after a configurable duration (default 3 seconds).",
+  "frontend/src/lib/months.ts": "Shared constant array of 12 month names (January–December) with TypeScript type export for consistent labeling across components.",
+  "frontend/src/components/YearlySummaryTable.tsx": "Yearly summary table component displaying goals organized by category rows and 12 month columns with checkboxes, Statistics section showing percentages, Monthly progress row with donut charts, and automatic 100% completion detection that triggers the celebration modal when any month transitions to 100% (including after falling below and returning to 100%), using Partial<Record<Month, boolean>> for flexible month completion tracking.",
+  "frontend/vite.config.ts": "Vite configuration with React plugin, path alias resolution for @/ imports, development server proxy, and environment variable support.",
+  "frontend/tsconfig.json": "TypeScript configuration with ES2020 target, strict mode enabled, and path alias mapping for @/ to ./src/*.",
+  "frontend/tsconfig.node.json": "TypeScript configuration for Vite config file with ESNext module resolution.",
+  "frontend/src/config.ts": "Configuration loader that fetches runtime config from env.json with fallback to Vite environment variables for Internet Identity settings.",
+  "frontend/src/hooks/useInternetIdentity.ts": "Internet Identity authentication provider hook with async config loading, login/logout functionality, and proper Vite-compatible environment variable access.",
+  "frontend/env.json": "Runtime environment configuration file containing Internet Identity provider URL.",
+  "frontend/DEVELOPMENT.md": "Comprehensive development guide with prerequisites, local setup instructions, build commands, deployment steps, and troubleshooting tips.",
+  "frontend/README.md": "Project overview with features, quick start guide, technology stack, and links to detailed development documentation.",
+  "frontend/src/components/MonthlyProgressDonut.tsx": "A presentational SVG-based donut chart component that displays circular progress with a hollow center, accepting progress (0-1), color, and size props with smooth transitions.",
+  "frontend/src/components/MonthlyCompletionCelebrationModal.tsx": "A celebration modal component that displays when a month reaches 100% completion, featuring confetti overlay, congratulatory message with exact copy matching reference screenshots (\"Congrats!!....😍\"), default celebration photo that resets on reopen, selfie capture functionality with preview replacement, and \"Take Selfie & Share\" / \"Maybe Later\" action buttons using shadcn Dialog primitives."
 }

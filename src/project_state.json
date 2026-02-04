@@ -1,94 +1,485 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
-  "summary": "Build a dynamic, interactive Goal Tracker dashboard titled \"My Goals : 2026\" featuring seven color-coded vertical goal cards in a single horizontal row with specific typography and a \"See goals per month\" button.",
+  "projectStateVersion": 9,
+  "summary": "Goals Dashboard is a React + Vite + Tailwind single-page web app for tracking “lifetime goals” across predefined, color-coded category cards. Users can add, inline-edit, delete, and mark goals complete; marking a goal complete triggers a month-selection modal to assign it to a month. All goal/card state is managed locally in React state and persisted to browser localStorage. A separate “Time-Bound targets - 2026” summary view projects completed, month-assigned goals into a category-by-month table with interactive (UI-only) per-goal checkboxes, a Statistics section computing per-month completion/incompletion percentages, and per-month donut charts showing progress. When a month’s summary checkboxes reach 100% completion (with at least one goal in that month), a celebratory modal automatically opens with a confetti/badge presentation and a client-only “selfie capture/selection” flow. The repo also includes Internet Identity authentication context and an ICP backend actor/canister scaffold, though this version does not implement backend queries.",
   "existing_features": [
     {
-      "id": "feature-create-a-dashboard-page-titled-my-goals-2026-that-visually-matches-the-provided-reference-image-featuring-a-single-horizontal-row-of-exactly-7-vertical-goal-cards-in-this-order-and-color-scheme-1-career-professional-yellow-2-personal-development-orange-3-laboral-job-red-salmon-4-family-and-sentimental-pink-5-financial-purple-6-health-blue-7-academic-university-light-green",
-      "title": "Create a dashboard page titled \"My Goals : 2026\" that visually matches the provided reference image, featuring a single horizontal row of exactly 7 vertical goal cards in this order and color scheme: (1) \"Career-Professional\" (Yellow), (2) \"Personal Development\" (Orange), (3) \"Laboral-Job\" (Red/Salmon), (4) \"Family and Sentimental\" (Pink), (5) \"Financial\" (Purple), (6) \"Health\" (Blue), (7) \"Academic-University\" (Light Green).",
-      "reqIds": [
-        "REQ-1"
+      "id": "IF-1",
+      "title": "App bootstrap with React Query and Internet Identity provider",
+      "synonyms": [
+        "main.tsx provider setup",
+        "QueryClientProvider + InternetIdentityProvider"
       ],
+      "description": "Bootstraps the React app by creating a TanStack QueryClient and wrapping the component tree with QueryClientProvider and InternetIdentityProvider; loads global styles.",
+      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-apply-the-lora-font-in-italic-style-to-all-card-titles-and-all-goal-text-across-the-dashboard",
-      "title": "Apply the Lora font in italic style to all card titles and all goal text across the dashboard.",
-      "reqIds": [
-        "REQ-2"
+      "id": "IF-2",
+      "title": "Goals dashboard as the main application page",
+      "synonyms": [
+        "App renders GoalsDashboard",
+        "single-page goals UI"
       ],
+      "description": "The root App renders the GoalsDashboard page as the primary UI of the application.",
+      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-inside-each-card-render-a-list-of-goals-with-a-dashed-separator-line-between-goal-items",
-      "title": "Inside each card, render a list of goals with a dashed separator line between goal items.",
-      "reqIds": [
-        "REQ-3"
+      "id": "IF-3",
+      "title": "Predefined category cards with emojis, custom colors, and seeded goals",
+      "synonyms": [
+        "Initial cards",
+        "color-coded categories"
       ],
+      "description": "Defines initial goal cards (category title + emoji) with per-card OKLCH header colors/text colors and seeded goal lists.",
+      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-implement-interactive-goal-items-so-each-goal-can-be-marked-complete-incomplete-via-a-checkbox-style-control-updating-the-ui-state-immediately",
-      "title": "Implement interactive goal items so each goal can be marked complete/incomplete via a checkbox-style control, updating the UI state immediately.",
-      "reqIds": [
-        "REQ-4"
+      "id": "IF-4",
+      "title": "Local persistence of cards and goals via localStorage",
+      "synonyms": [
+        "Persist goals on reload",
+        "localStorage hydration"
       ],
+      "description": "Hydrates cards from localStorage on initial mount (fallback to defaults) and persists updates to the 'goals-dashboard-cards' key whenever cards change.",
+      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-enforce-the-row-behavior-all-cards-must-stay-on-one-row-no-wrapping-horizontal-scrolling-must-be-disabled-when-there-are-7-or-fewer-cards-and-enabled-only-when-there-are-more-than-7-cards",
-      "title": "Enforce the row behavior: all cards must stay on one row (no wrapping). Horizontal scrolling must be disabled when there are 7 or fewer cards, and enabled only when there are more than 7 cards.",
+      "id": "IF-5",
+      "title": "Goal completion toggles with checkbox and month clearing on uncheck",
+      "synonyms": [
+        "Mark goal complete/incomplete",
+        "clear month on uncomplete"
+      ],
+      "description": "Each goal row includes a checkbox to toggle completion; when unchecking a goal, any month assignment is cleared (month: undefined) and the goal is marked incomplete.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-6",
+      "title": "Completion-triggered month assignment with pending-goal tracking",
+      "synonyms": [
+        "Pending goal flow",
+        "completion opens modal"
+      ],
+      "description": "When a goal transitions from incomplete to complete, the UI records it as a pending goal and opens the month selection modal to schedule it.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-7",
+      "title": "Month selection modal (12-month grid) with confirm/cancel actions",
+      "synonyms": [
+        "MonthSelectionModal",
+        "month picker dialog"
+      ],
+      "description": "Dialog-based modal prompting for a month assignment with a 3x4 grid of month buttons; Confirm is disabled until a month is selected.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-8",
+      "title": "Modal confirm/cancel behavior and close-to-cancel handling",
+      "synonyms": [
+        "Confirm assigns month",
+        "Cancel reverts completion",
+        "Close dialog cancels"
+      ],
+      "description": "Confirm assigns the selected month to the pending goal, shows a notification, and closes the modal; canceling/closing the modal reverts the pending goal back to incomplete and resets modal state.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-9",
+      "title": "Centered notification overlay with auto-dismiss",
+      "synonyms": [
+        "CenteredNotification",
+        "overlay toast"
+      ],
+      "description": "Displays a centered overlay notification message and automatically dismisses after a configurable duration (default 3000ms).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-10",
+      "title": "Inline editing of goal text with focus and keyboard controls",
+      "synonyms": [
+        "Click-to-edit goal",
+        "in-place rename"
+      ],
+      "description": "Clicking a goal label enters edit mode with an auto-focused input; saves on blur or Enter (trimmed, non-empty) and cancels on Escape.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-11",
+      "title": "Add new goals within a category card with immediate edit",
+      "synonyms": [
+        "Create goal",
+        "plus button adds row"
+      ],
+      "description": "Allows adding a new goal (default text 'New goal') and immediately enters edit mode for the new item.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-12",
+      "title": "Delete goals within a category card",
+      "synonyms": [
+        "Remove goal",
+        "trash icon"
+      ],
+      "description": "Allows deleting any goal via a per-row action button.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-13",
+      "title": "Hover/focus-revealed per-row action buttons and dashed separators",
+      "synonyms": [
+        "Row actions on hover",
+        "dashed dividers"
+      ],
+      "description": "Reserves space for actions and reveals add/delete buttons on hover or focus-within; renders dashed separators between goal rows (except after the last item).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-14",
+      "title": "Single-row card layout with conditional horizontal scrolling",
+      "synonyms": [
+        "No-wrap cards row",
+        "conditional x-scroll"
+      ],
+      "description": "Displays category cards in a single horizontal row (no wrap) and enables horizontal scrolling when the number of cards exceeds a threshold (cards.length > 7).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-15",
+      "title": "Dashboard-to-summary navigation with back navigation",
+      "synonyms": [
+        "See goals per month",
+        "Back to dashboard"
+      ],
+      "description": "Provides a CTA to switch to the yearly summary view and a back button in the summary header to return to the dashboard.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-16",
+      "title": "Yearly Summary Table organized by category and month with tinted backgrounds",
+      "synonyms": [
+        "Goals per month table",
+        "Time-Bound targets - 2026"
+      ],
+      "description": "Renders a table with a Category column and 12 month columns, showing completed goals assigned to each month within each category; month headers/cells use distinct light tinted OKLCH backgrounds.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-17",
+      "title": "Summary view shows only completed goals that have a month assignment",
+      "synonyms": [
+        "completed+scheduled filter",
+        "month-projected goals"
+      ],
+      "description": "Builds a category->month->goals projection that includes only goals where completed is true and month is defined; unscheduled completed goals are omitted from the table.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-18",
+      "title": "Yearly summary per-goal checkboxes are interactive but UI-only and default unchecked",
+      "synonyms": [
+        "Interactive summary checkboxes",
+        "non-persistent summary checkbox state"
+      ],
+      "description": "In the yearly summary view, each listed goal includes an enabled checkbox whose checked state is managed only in the summary component (not persisted) and initializes unchecked on view load; toggling does not modify goal completion/month data in localStorage.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-19",
+      "title": "Statistics section appended to the Yearly Summary Table",
+      "synonyms": [
+        "Summary statistics footer",
+        "Statistics rows under table"
+      ],
+      "description": "Adds a bottom Statistics section to the yearly summary table consisting of a 'Statistics:' label row and metric rows aligned to the month columns.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-20",
+      "title": "Month-by-month completion and incomplete percentage calculation in summary view",
+      "synonyms": [
+        "Per-month completion rate",
+        "checked goals percentage"
+      ],
+      "description": "Computes, per month: Percentage completed = round(checked goals displayed in that month / total goals displayed in that month * 100) and Incomplete percentage = 100 - completed; handles months with 0 goals by showing 0%/0% and includes a raw progress ratio for charting.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-21",
+      "title": "Monthly progress donut charts row in the summary table",
+      "synonyms": [
+        "Donut chart row",
+        "monthly progress visualization"
+      ],
+      "description": "Adds a 'Monthly progress' row at the bottom of the Statistics section rendering a donut chart in each month column to visualize per-month progress based on checked/total ratio.",
       "reqIds": [
         "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-button-labeled-see-goals-per-month-at-the-end-right-side-of-the-card-row",
-      "title": "Add a button labeled \"See goals per month\" at the end (right side) of the card row.",
+      "id": "IF-22",
+      "title": "Reusable SVG donut chart component",
+      "synonyms": [
+        "MonthlyProgressDonut",
+        "circular progress ring"
+      ],
+      "description": "Renders a hollow circular progress indicator using two SVG circles (background ring + stroked progress ring) with configurable size, color, and 0..1 progress input and smooth stroke transitions.",
       "reqIds": [
         "REQ-6"
       ],
       "version": 1
+    },
+    {
+      "id": "IF-23",
+      "title": "Shared month constants and Month type",
+      "synonyms": [
+        "MONTHS constant",
+        "Month union type"
+      ],
+      "description": "Exports a shared MONTHS array (January–December) and a derived Month TypeScript union type for consistent month labeling and typing across components.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-24",
+      "title": "Enhanced styling for summary checkboxes and statistics section (including white stats header month cells)",
+      "synonyms": [
+        "summary-table-checkbox styles",
+        "statistics section backgrounds",
+        "white override for statistics header month cells"
+      ],
+      "description": "Provides CSS for larger, higher-contrast checkboxes in the summary table, distinct tinted backgrounds for statistics rows, and a scoped selector forcing the 12 month cells in the Statistics header row to render white.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-25",
+      "title": "Detect month reaching 100% completion and auto-open celebration modal",
+      "synonyms": [
+        "100% completion trigger",
+        "month completion transition detection"
+      ],
+      "description": "In the yearly summary view, detects when a month transitions from not complete to complete based on the UI-only per-goal checkbox state (requires at least 1 goal in the month) and automatically opens a congratulatory modal.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-26",
+      "title": "100% completion celebration modal UI with close (X) and confetti/badge presentation",
+      "synonyms": [
+        "MonthlyCompletionCelebrationModal",
+        "congratulatory dialog"
+      ],
+      "description": "Implements a centered celebration dialog styled with a confetti overlay, decorative badge overlay, and the exact congratulatory messaging; includes a close (X) button.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-27",
+      "title": "Selfie capture/selection and in-modal image preview (client-only)",
+      "synonyms": [
+        "Take Selfie & Share",
+        "file input capture"
+      ],
+      "description": "Provides a primary action that opens the device camera or image picker via a hidden file input (accept='image/*', capture='user'), then shows a selected image preview inside the modal using an object URL.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-28",
+      "title": "Modal dismiss action 'Maybe Later' that preserves summary checkbox state",
+      "synonyms": [
+        "Secondary dismiss",
+        "non-destructive close"
+      ],
+      "description": "Provides a secondary 'Maybe Later' action that closes the celebration modal without changing any existing summary checkbox/completion state and allows continued use of the summary table.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-29",
+      "title": "Static generated celebratory assets served from public folder",
+      "synonyms": [
+        "confetti overlay image",
+        "monthly badge image"
+      ],
+      "description": "References and renders required celebratory static images from /assets/generated (confetti overlay and decorative badge) as layered presentation elements in the celebration modal.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-30",
+      "title": "Internet Identity authentication context/provider",
+      "synonyms": [
+        "II auth provider",
+        "AuthClient context"
+      ],
+      "description": "Implements a React Context provider around @dfinity/auth-client to initialize/restore identity, support login via Internet Identity, logout/clear identity, and expose status flags and errors.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-31",
+      "title": "Authenticated/anonymous ICP actor creation hook with React Query caching",
+      "synonyms": [
+        "useActor hook",
+        "Actor cached via principal"
+      ],
+      "description": "Creates and caches an ICP backend actor using React Query; switches between anonymous and authenticated identities based on the current Internet Identity state and invalidates/refetches other queries when the actor changes.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-32",
+      "title": "Runtime env.json configuration for Internet Identity URL",
+      "synonyms": [
+        "env.json runtime config",
+        "II_URL config"
+      ],
+      "description": "Provides a runtime configuration file (env.json) supplying the Internet Identity provider URL used by the authentication flow.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-33",
+      "title": "Vite configuration for aliasing, environment injection, and ICP dev proxy",
+      "synonyms": [
+        "vite.config.ts",
+        "@ alias",
+        "vite-plugin-environment"
+      ],
+      "description": "Configures Vite with React plugin, '@' path alias to src, environment variable injection, and a dev server proxy for '/api' to a local replica; outputs build artifacts to dist.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-34",
+      "title": "Backend Motoko canister scaffold",
+      "synonyms": [
+        "Backend stub",
+        "main.mo actor"
+      ],
+      "description": "Includes a minimal Motoko canister entrypoint defining an empty actor placeholder for future backend logic.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-35",
+      "title": "Placeholder queries hook documenting no backend queries",
+      "synonyms": [
+        "useQueries placeholder",
+        "No backend query layer"
+      ],
+      "description": "Exports an empty module noting that this version manages goal state locally and does not use backend queries.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-36",
+      "title": "Developer documentation (README and development guide)",
+      "synonyms": [
+        "frontend/README.md",
+        "frontend/DEVELOPMENT.md"
+      ],
+      "description": "Provides project overview and development/build/deploy guidance for running the app and (optionally) deploying to the Internet Computer workflow.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-time-bound-targets-2026-yearly-summary-table-view-ensure-the-100-completion-celebration-modal-visually-and-textually-matches-the-provided-reference-screenshots-image-6-png-image-7-png-including-the-same-headline-style-emoji-usage-and-message-copy",
+      "title": "In the “Time-Bound targets - 2026” (Yearly Summary Table) view, ensure the 100% completion celebration modal visually and textually matches the provided reference screenshots (image-6.png, image-7.png), including the same headline style, emoji usage, and message copy.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-celebration-modal-media-area-so-that-when-no-user-selfie-has-been-selected-yet-it-displays-a-built-in-default-celebration-image-matching-the-reference-screenshot-s-layout-instead-of-an-empty-placeholder-area-keep-the-existing-behavior-to-show-the-user-selected-selfie-once-provided",
+      "title": "Update the celebration modal media area so that, when no user selfie has been selected yet, it displays a built-in default celebration image matching the reference screenshot’s layout (instead of an empty placeholder area). Keep the existing behavior to show the user-selected selfie once provided.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-new-default-celebration-image-as-a-static-asset-under-frontend-public-assets-generated-and-reference-it-directly-from-the-modal-component-do-not-route-images-through-the-backend",
+      "title": "Add the new default celebration image as a static asset under `frontend/public/assets/generated/` and reference it directly from the modal component (do not route images through the backend).",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Create \"My Goals : 2026\" dashboard layout with 7 vertical, color-coded cards in a single horizontal row (Career-Professional, Personal Development, Laboral-Job, Family and Sentimental, Financial, Health, Academic-University).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Apply Lora italic font to all card titles and goal text; add dashed separator lines between goals within each card.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Implement row behavior: keep all cards in one row; allow no horizontal scrolling unless there are more than 7 cards.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Add end-of-row button labeled \"See goals per month\".",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Match the UI styling/layout to the provided reference picture (visual parity requirement).",
-      "reqIds": [],
-      "status": "pending"
-    }
+  "new_feature_requests": [],
+  "architectural_notes": [
+    "Single-page React UI with internal view state ('dashboard' | 'summary') rather than a router.",
+    "Core domain model (cards -> goals with completed/month) lives in component state and is updated immutably; persistence is via localStorage hydration + save-on-change.",
+    "Month assignment uses a controlled pending-goal flow: checking a goal opens a modal; confirm writes month; cancel/close reverts completion.",
+    "Yearly summary is a derived projection filtered by (completed && month assigned) into a category x month table using shared MONTHS constants.",
+    "Summary checkboxes are intentionally decoupled from persisted data (local checkedState); statistics and donut progress are computed from this UI-only state.",
+    "100% completion celebration is detected via a useEffect comparing current per-month completeness against a previous-completion ref to detect false→true transitions.",
+    "UI uses shadcn/ui primitives (Dialog/Button/Input/Checkbox) styled with Tailwind utilities and lucide-react icons.",
+    "Celebration modal presentation relies on static image assets served from /public/assets/generated and layered via custom CSS classes.",
+    "Design system uses OKLCH CSS-variable tokens mapped into Tailwind theme colors, with dark mode variables and a custom Lora italic utility.",
+    "Internet Identity authentication is encapsulated in a React Context/provider around @dfinity/auth-client; ICP actor creation is wrapped in a React Query hook keyed by principal/identity."
   ],
-  "architectural_notes": [],
-  "known_issues": [],
+  "known_issues": [
+    "localStorage hydration uses JSON.parse without schema/version validation; malformed stored data can cause runtime shape issues.",
+    "When completing a goal, completed=true is persisted before month confirmation; refreshing during the modal can leave goals “completed but unscheduled” (month undefined) that the summary view omits.",
+    "handleMonthConfirm derives the notification goal text from the pre-update 'cards' closure, which can be stale in edge cases.",
+    "handleMonthCancel restores completed=false but does not explicitly clear month; if inconsistent states exist, month could remain set while incomplete.",
+    "Yearly summary 100% detection iterates all months; if multiple months transition to 100% in a single checkbox change, modal state may be set multiple times and effectively celebrate the last processed month.",
+    "MonthlyCompletionCelebrationModal receives a 'month' prop but does not currently display it in the UI/message.",
+    "Selfie file input does not reset its value after selection; selecting the same file again may not fire a change event in some browsers.",
+    "Two global CSS entrypoints exist (frontend/index.css and frontend/src/index.css), which can create ambiguity/overrides depending on bundling/imports.",
+    "Seed data includes at least one goal marked completed=true without a month, creating an initially “completed but unscheduled” item.",
+    "useActor invalidates/refetches all non-actor React Query queries on actor change, which may be overly broad as more queries are added."
+  ],
   "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Photo-like celebratory portrait image for modal default state (celebration-default-photo.dim_900x700.png)",
+  "generatedImages": [
+    {
+      "filename": "celebration-default-photo.dim_900x700.png",
+      "description": "Photo-like celebratory portrait image for modal default state",
+      "targetWidth": 900,
+      "targetHeight": 700
+    }
+  ],
   "gameProjectType": "none",
-  "projectName": "My Goals : 2026",
+  "projectName": "Goals Dashboard",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
