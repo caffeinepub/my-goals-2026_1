@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Build a dynamic, interactive Goal Tracker dashboard titled \"My Goals : 2026\" featuring seven color-coded vertical goal cards in a single horizontal row with specific typography and a \"See goals per month\" button.",
+  "existing_features": [
+    {
+      "id": "feature-create-a-dashboard-page-titled-my-goals-2026-that-visually-matches-the-provided-reference-image-featuring-a-single-horizontal-row-of-exactly-7-vertical-goal-cards-in-this-order-and-color-scheme-1-career-professional-yellow-2-personal-development-orange-3-laboral-job-red-salmon-4-family-and-sentimental-pink-5-financial-purple-6-health-blue-7-academic-university-light-green",
+      "title": "Create a dashboard page titled \"My Goals : 2026\" that visually matches the provided reference image, featuring a single horizontal row of exactly 7 vertical goal cards in this order and color scheme: (1) \"Career-Professional\" (Yellow), (2) \"Personal Development\" (Orange), (3) \"Laboral-Job\" (Red/Salmon), (4) \"Family and Sentimental\" (Pink), (5) \"Financial\" (Purple), (6) \"Health\" (Blue), (7) \"Academic-University\" (Light Green).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-the-lora-font-in-italic-style-to-all-card-titles-and-all-goal-text-across-the-dashboard",
+      "title": "Apply the Lora font in italic style to all card titles and all goal text across the dashboard.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-inside-each-card-render-a-list-of-goals-with-a-dashed-separator-line-between-goal-items",
+      "title": "Inside each card, render a list of goals with a dashed separator line between goal items.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-interactive-goal-items-so-each-goal-can-be-marked-complete-incomplete-via-a-checkbox-style-control-updating-the-ui-state-immediately",
+      "title": "Implement interactive goal items so each goal can be marked complete/incomplete via a checkbox-style control, updating the UI state immediately.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enforce-the-row-behavior-all-cards-must-stay-on-one-row-no-wrapping-horizontal-scrolling-must-be-disabled-when-there-are-7-or-fewer-cards-and-enabled-only-when-there-are-more-than-7-cards",
+      "title": "Enforce the row behavior: all cards must stay on one row (no wrapping). Horizontal scrolling must be disabled when there are 7 or fewer cards, and enabled only when there are more than 7 cards.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-button-labeled-see-goals-per-month-at-the-end-right-side-of-the-card-row",
+      "title": "Add a button labeled \"See goals per month\" at the end (right side) of the card row.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create \"My Goals : 2026\" dashboard layout with 7 vertical, color-coded cards in a single horizontal row (Career-Professional, Personal Development, Laboral-Job, Family and Sentimental, Financial, Health, Academic-University).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Apply Lora italic font to all card titles and goal text; add dashed separator lines between goals within each card.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Implement row behavior: keep all cards in one row; allow no horizontal scrolling unless there are more than 7 cards.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add end-of-row button labeled \"See goals per month\".",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Match the UI styling/layout to the provided reference picture (visual parity requirement).",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "gameProjectType": "none",
+  "projectName": "My Goals : 2026",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

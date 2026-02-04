@@ -1,0 +1,16 @@
+{
+  "backend/main.mo": "Minimal Motoko backend defining an empty actor with no methods or state.",
+  "feature_evidence.json": "Feature evidence report describing implemented frontend dashboard features, affected files, components, test IDs, and confidence levels.",
+  "frontend-file-summaries.txt": "Prewritten high-level summaries of key frontend files and their responsibilities.",
+  "frontend/index.css": "Global Tailwind CSS setup defining design tokens, light/dark themes, and base styles using OKLCH color variables.",
+  "frontend/index.html": "HTML entry point that sets the page title and preloads the Lora font from Google Fonts.",
+  "frontend/src/App.tsx": "Root React component that renders the GoalsDashboard page.",
+  "frontend/src/hooks/useActor.ts": "React hook that creates and caches an authenticated or anonymous backend actor using Internet Identity and React Query.",
+  "frontend/src/hooks/useInternetIdentity.ts": "Context and hooks for managing Internet Identity authentication, login state, and identity persistence.",
+  "frontend/src/hooks/useQueries.ts": "Empty placeholder for future backend queries; currently exports nothing.",
+  "frontend/src/index.css": "Tailwind CSS configuration with Lora font import, theme variables, and a utility class for italic Lora typography.",
+  "frontend/src/main.tsx": "React application bootstrap that wires up React Query, Internet Identity provider, and global styles.",
+  "frontend/src/pages/GoalsDashboard.tsx": "Main dashboard page rendering seven color-coded goal cards with local state, checkboxes, and goal lists.",
+  "frontend/tailwind.config.js": "Tailwind CSS configuration enabling dark mode, scanning frontend source files, and extending the theme with custom containers, fonts, colors based on CSS variables, radii, shadows, and accordion animations. Includes typography, container queries, and animation plugins.",
+  "project_state.json": "Project metadata and state describing the \"My Goals : 2026\" dashboard, including schema/version info, implemented features, and pending feature requests for a 7-card horizontal goal tracker UI with specific styling and interactions."
+}

@@ -1,0 +1,8 @@
+{
+  "frontend/src/App.tsx": "Main application entry point that renders the GoalsDashboard component.",
+  "frontend/src/pages/GoalsDashboard.tsx": "Complete goal tracker dashboard with 7 color-coded cards displaying goals with checkboxes, dashed separators, and a \"See goals per month\" button; implements local state management for goal completion toggling.",
+  "frontend/src/index.css": "Global styles with OKLCH color system, Lora font import, and custom utility class for Lora italic typography.",
+  "frontend/index.html": "HTML entry point with Lora font preloaded from Google Fonts.",
+  "frontend/tailwind.config.js": "Tailwind configuration extended with Lora font family definition.",
+  "frontend/src/hooks/useQueries.ts": "Empty placeholder file for future backend integration; current version uses local state only."
+}

@@ -1,0 +1,94 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-04T00:08:12.366Z",
+  "summary": "Diff adds a new GoalsDashboard page and wiring in App/main, plus Lora font loading. However, key UI/behavior requirements (title rendering, exact 7-card row layout/no-wrap + conditional scrolling, dashed dividers, checkbox toggling behavior, and the end-of-row button) are not verifiable from the provided truncated code excerpt. Additionally, the diff introduces Internet Identity / actor plumbing that was explicitly listed as a non-goal.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Dashboard page titled \"My Goals : 2026\" with exactly 7 vertical goal cards in the specified order and color families, matching the reference layout.",
+      "reason": "GoalsDashboard.tsx is truncated before any JSX/layout is shown; the diff excerpt only shows data definitions, so the title text, exact 7-card render order in the UI, and reference-like layout cannot be confirmed from available evidence.",
+      "evidence": [
+        "frontend/src/pages/GoalsDashboard.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Apply Lora italic to all card titles and all goal text across the dashboard.",
+      "reason": "Lora is imported and a utility class is defined, but the diff excerpt does not show the class applied to titles/goals in JSX.",
+      "evidence": [
+        "frontend/src/index.css",
+        "frontend/index.html",
+        "frontend/src/pages/GoalsDashboard.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Render goals in each card with dashed separator lines between consecutive goal items.",
+      "reason": "No JSX/CSS for dashed dividers between items is visible in the provided truncated GoalsDashboard.tsx excerpt.",
+      "evidence": [
+        "frontend/src/pages/GoalsDashboard.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Interactive goal items with checkbox control that toggles completed state immediately in UI, with completed vs incomplete visually distinguishable.",
+      "reason": "Checkbox component is imported and local state is suggested, but the diff excerpt does not show the checkbox controls rendered, the toggle handler, or completed styling.",
+      "evidence": [
+        "frontend/src/pages/GoalsDashboard.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Single-row no-wrap behavior; horizontal scrolling disabled for 7 or fewer cards and enabled only when more than 7 cards.",
+      "reason": "No container layout styles/logic are shown in the truncated excerpt to confirm no-wrapping and the conditional overflow behavior based on card count.",
+      "evidence": [
+        "frontend/src/pages/GoalsDashboard.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Add a button labeled \"See goals per month\" at the end (right side) of the card row.",
+      "reason": "Button is imported but the diff excerpt does not show it rendered with the exact required label after the last card.",
+      "evidence": [
+        "frontend/src/pages/GoalsDashboard.tsx (truncated)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Internet Identity authentication provider/hooks added (InternetIdentityProvider, useInternetIdentity) and wrapped around the app.",
+      "reason": "Authentication/Internet Identity integration is explicitly listed as a non-goal; no requirement requested adding II context/provider.",
+      "evidence": [
+        "frontend/src/main.tsx",
+        "frontend/src/hooks/useInternetIdentity.ts"
+      ]
+    },
+    {
+      "description": "Backend actor creation/query plumbing (useActor) with react-query, including identity-based actor recreation and query invalidation.",
+      "reason": "No requirements asked for backend actors or identity-dependent actor management; backend persistence was a non-goal unless requested later.",
+      "evidence": [
+        "frontend/src/hooks/useActor.ts",
+        "frontend/src/hooks/useQueries.ts",
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "confidence": 0.62,
+  "changed_files": [
+    "all_files_summary.json",
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/index.css",
+    "frontend/index.html",
+    "frontend/src/App.tsx",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/hooks/useInternetIdentity.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/index.css",
+    "frontend/src/main.tsx",
+    "frontend/src/pages/GoalsDashboard.tsx",
+    "frontend/tailwind.config.js",
+    "project_state.json"
+  ]
+}
