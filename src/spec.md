@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** In “Time-Bound targets - 2026” (Yearly Summary Table), update the 100% completion celebration modal so its UI, copy, emoji usage, and default media match the provided reference screenshots.
+**Goal:** Update the “Time-Bound targets - 2026” 100% completion congrats modal to use the uploaded selfieGirl image as the default celebration photo when the user has not selected their own photo.
 
 **Planned changes:**
-- Adjust the celebration modal’s headline and body copy to match the reference screenshots exactly (including punctuation/ellipsis and emojis), while keeping the close (X) in the top-right.
-- Update the modal media area to show a built-in default celebration image when no selfie has been selected yet, and switch to the user-selected selfie once provided.
-- Ensure closing and reopening the modal resets the media back to the default image until a new selfie is selected.
-- Add the default celebration image as a static asset under `frontend/public/assets/generated/` and reference it directly from the modal (client-only).
+- Add the provided selfie image file to `frontend/public/assets/generated` with the specified filename.
+- Update `DEFAULT_CELEBRATION_IMAGE` in `frontend/src/components/MonthlyCompletionCelebrationModal.tsx` to reference the new static asset path.
+- Keep existing behavior so a user-captured/uploaded photo continues to replace the default image when present.
 
-**User-visible outcome:** When a month reaches 100% completion, users see a celebration modal that matches the reference design and message, includes a default celebration image until they choose a selfie, and can be dismissed via the X or “Maybe Later” without disrupting the summary table.
+**User-visible outcome:** When opening the completion celebration modal without having captured/uploaded a photo, users see the provided selfieGirl image as the default preview under “Want to celebrate with a selfie?”.

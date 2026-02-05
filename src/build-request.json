@@ -1,72 +1,52 @@
 {
   "kind": "build_request",
-  "title": "Match 100% completion celebration modal UI/message to provided reference in Time-Bound targets - 2026",
+  "title": "Set uploaded selfieGirl image as default celebration modal photo in Time-Bound targets - 2026",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-12",
-      "text": "In the “Time-Bound targets - 2026” (Yearly Summary Table) view, ensure the 100% completion celebration modal visually and textually matches the provided reference screenshots (image-6.png, image-7.png), including the same headline style, emoji usage, and message copy.",
+      "id": "REQ-4",
+      "text": "In the “Time-Bound targets - 2026” 100% completion congrats modal (MonthlyCompletionCelebrationModal), change the default (when no user photo is selected) image shown in the media area below the text “Want to celebrate with a selfie?” to the user-provided uploaded image (selfieGirl.jpg), served as a static asset from the frontend.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-1"
         ],
         "quotes": [
-          "In the view Time-Bound targets - 2026, If a month reaches 100% completion, display a Modal with the same message and image like in the picture."
+          "In the view Time-Bound targets - 2026 , inside the congrats modal, add this exact picture by default bellow the text : want to celebrate with a selfie?"
         ]
       },
       "acceptanceCriteria": [
-        "When a month transitions to 100% completion, the modal appears and the headline and body text match the reference screenshots (including punctuation/ellipsis and emojis).",
-        "The modal retains a close (X) control in the top-right and can be dismissed via the X and the secondary action without breaking the summary table interaction."
+        "When the congrats modal opens and the user has not captured/uploaded an image, the displayed preview image matches the provided selfieGirl.jpg content (not the previous default image).",
+        "After the user captures or uploads a photo, that selected photo replaces the default image as it does today.",
+        "The default image is loaded from a static frontend path (not via the backend)."
       ]
     },
     {
-      "id": "REQ-13",
-      "text": "Update the celebration modal media area so that, when no user selfie has been selected yet, it displays a built-in default celebration image matching the reference screenshot’s layout (instead of an empty placeholder area). Keep the existing behavior to show the user-selected selfie once provided.",
+      "id": "REQ-5",
+      "text": "Add the new default image file to the static assets folder at frontend/public/assets/generated and update the default-image reference in frontend/src/components/MonthlyCompletionCelebrationModal.tsx to use this new filename.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
-        ],
-        "quotes": [
-          "display a Modal with the same message and image like in the picture."
+          "msg-1"
         ]
       },
       "acceptanceCriteria": [
-        "Opening the modal without selecting a selfie shows the default celebration image.",
-        "After selecting a selfie, the modal shows the selected selfie preview (replacing the default image).",
-        "Closing and reopening the modal resets back to the default celebration image (until a new selfie is selected)."
-      ]
-    },
-    {
-      "id": "REQ-14",
-      "text": "Add the new default celebration image as a static asset under `frontend/public/assets/generated/` and reference it directly from the modal component (do not route images through the backend).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-3"
-        ],
-        "quotes": [
-          "display a Modal with the same message and image like in the picture."
-        ]
-      },
-      "acceptanceCriteria": [
-        "The default celebration image is present in `frontend/public/assets/generated/` and loads correctly in the modal in dev and production builds."
+        "The project contains the new default image under frontend/public/assets/generated with the exact filename specified in imageRequirements.required.",
+        "DEFAULT_CELEBRATION_IMAGE in MonthlyCompletionCelebrationModal.tsx points to the new asset path and renders correctly in the modal."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under `frontend/src/components/ui` (compose existing UI components instead).",
-    "Do not change backend canister logic; this modal behavior remains client-only.",
-    "Keep the existing trigger logic: the modal opens only when a month transitions to 100% completion and the month has at least one goal."
+    "Do not edit files under frontend/src/components/ui (compose existing UI components instead).",
+    "Do not modify any files listed in frontend.immutablePaths."
   ],
   "nonGoals": [
-    "Adding backend persistence for the Yearly Summary checkbox state.",
-    "Implementing actual sharing to social media or external services."
+    "No changes to the selfie capture flow, countdown, upload flow, or camera permissions/error handling.",
+    "No backend changes or persistence changes."
   ],
   "imageRequirements": {
     "required": [
-      "Photo-like celebratory portrait image for modal default state (celebration-default-photo.dim_900x700.png)"
+      "Portrait selfie photo of a smiling woman with soft sparkle/bokeh overlay and large beige outlined text reading “I crushed my monthly goals!” near the bottom (celebration-default-selfieGirl.dim_696x609.png)"
     ],
     "edits": []
   }

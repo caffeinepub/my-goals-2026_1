@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-the-time-bound-targets-2026-yearly-summary-table-view-ensure-the-100-completion-celebration-modal-visually-and-textually-matches-the-provided-reference-screenshots-image-6-png-image-7-png-including-the-same-headline-style-emoji-usage-and-message-copy",
-      "featureTitle": "In the “Time-Bound targets - 2026” (Yearly Summary Table) view, ensure the 100% completion celebration modal visually and textually matches the provided reference screenshots (image-6.png, image-7.png), including the same headline style, emoji usage, and message copy.",
+      "featureId": "feature-in-the-time-bound-targets-2026-100-completion-congrats-modal-monthlycompletioncelebrationmodal-change-the-default-when-no-user-photo-is-selected-image-shown-in-the-media-area-below-the-text-want-to-celebrate-with-a-selfie-to-the-user-provided-uploaded-image-selfiegirl-jpg-served-as-a-static-asset-from-the-frontend",
+      "featureTitle": "In the “Time-Bound targets - 2026” 100% completion congrats modal (MonthlyCompletionCelebrationModal), change the default (when no user photo is selected) image shown in the media area below the text “Want to celebrate with a selfie?” to the user-provided uploaded image (selfieGirl.jpg), served as a static asset from the frontend.",
       "files": [
         "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
       ],
@@ -12,16 +12,17 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
       ],
       "testIds": [
-        "REQ-12"
+        "REQ-4"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-celebration-modal-media-area-so-that-when-no-user-selfie-has-been-selected-yet-it-displays-a-built-in-default-celebration-image-matching-the-reference-screenshot-s-layout-instead-of-an-empty-placeholder-area-keep-the-existing-behavior-to-show-the-user-selected-selfie-once-provided",
-      "featureTitle": "Update the celebration modal media area so that, when no user selfie has been selected yet, it displays a built-in default celebration image matching the reference screenshot’s layout (instead of an empty placeholder area). Keep the existing behavior to show the user-selected selfie once provided.",
+      "featureId": "feature-add-the-new-default-image-file-to-the-static-assets-folder-at-frontend-public-assets-generated-and-update-the-default-image-reference-in-frontend-src-components-monthlycompletioncelebrationmodal-tsx-to-use-this-new-filename",
+      "featureTitle": "Add the new default image file to the static assets folder at frontend/public/assets/generated and update the default-image reference in frontend/src/components/MonthlyCompletionCelebrationModal.tsx to use this new filename.",
       "files": [
         "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
       ],
@@ -30,28 +31,11 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
       ],
       "testIds": [
-        "REQ-13"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-the-new-default-celebration-image-as-a-static-asset-under-frontend-public-assets-generated-and-reference-it-directly-from-the-modal-component-do-not-route-images-through-the-backend",
-      "featureTitle": "Add the new default celebration image as a static asset under `frontend/public/assets/generated/` and reference it directly from the modal component (do not route images through the backend).",
-      "files": [
-        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-14"
+        "REQ-5"
       ],
       "confidence": "high"
     }

@@ -1,60 +1,41 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Yearly Summary: 100% completion celebration modal reference-match + default image",
+  "title": "Use uploaded selfieGirl asset as default celebration modal image (Time-Bound targets - 2026)",
   "requirements": [
     {
-      "id": "REQ-12",
-      "summary": "Match the 100% completion celebration modal headline style, emoji usage, and message copy to the reference screenshots in the “Time-Bound targets - 2026” view.",
+      "id": "REQ-4",
+      "summary": "Update the MonthlyCompletionCelebrationModal default (no user photo selected) media preview to use the provided selfieGirl image served from a static frontend asset path.",
       "acceptanceCriteria": [
-        "When a month transitions to 100% completion, the modal appears and the headline and body text match the reference screenshots (including punctuation/ellipsis and emojis).",
-        "The modal retains a close (X) control in the top-right and can be dismissed via the X and the secondary action without breaking the summary table interaction."
+        "When the congrats modal opens and the user has not captured/uploaded an image, the displayed preview image matches the provided selfieGirl.jpg content (not the previous default image).",
+        "After the user captures or uploads a photo, that selected photo replaces the default image as it does today.",
+        "The default image is loaded from a static frontend path (not via the backend)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
           "operation": "modify",
-          "description": "Update the modal headline/body copy and emoji usage to exactly match the reference screenshots (image-6.png, image-7.png), while continuing to compose existing shadcn-ui Dialog/Button components (verify the component's usage instructions before implementing). Keep existing close (X) and secondary action dismissal behavior intact."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Adjust the existing .celebration-modal and related styles (e.g., header typography, spacing, media card layout) so the modal visually matches the reference screenshots without modifying any files under frontend/src/components/ui."
+          "description": "Change the default image constant used when selectedImage is null so the media preview renders the new static asset (frontend/public/assets/generated/celebration-default-selfieGirl.dim_696x609.png) in the “Want to celebrate with a selfie?” area, while preserving existing behavior where captured/uploaded images override the default."
         }
       ]
     },
     {
-      "id": "REQ-13",
-      "summary": "Show a built-in default celebration image in the modal when no selfie is selected, and revert to default on reopen until a new selfie is chosen.",
+      "id": "REQ-5",
+      "summary": "Add the required generated default image to static assets and point DEFAULT_CELEBRATION_IMAGE to the new filename.",
       "acceptanceCriteria": [
-        "Opening the modal without selecting a selfie shows the default celebration image.",
-        "After selecting a selfie, the modal shows the selected selfie preview (replacing the default image).",
-        "Closing and reopening the modal resets back to the default celebration image (until a new selfie is selected)."
+        "The project contains the new default image under frontend/public/assets/generated with the exact filename specified in imageRequirements.required.",
+        "DEFAULT_CELEBRATION_IMAGE in MonthlyCompletionCelebrationModal.tsx points to the new asset path and renders correctly in the modal."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
-          "operation": "modify",
-          "description": "Update the media area rendering logic to display the default image from frontend/public/assets/generated/celebration-default-photo.dim_900x700.png when selectedImage is null, and to replace it with the user-selected selfie preview when provided. Ensure close/reopen resets to the default (including clearing any file input value/object URL cleanup). Continue composing existing shadcn-ui components (verify the component's usage instructions before implementing)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-14",
-      "summary": "Add and wire a new default celebration image as a static frontend asset used directly by the modal (no backend routing).",
-      "acceptanceCriteria": [
-        "The default celebration image is present in frontend/public/assets/generated/ and loads correctly in the modal in dev and production builds."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/public/assets/generated/celebration-default-photo.dim_900x700.png",
+          "path": "frontend/public/assets/generated/celebration-default-selfieGirl.dim_696x609.png",
           "operation": "create",
-          "description": "Add the new default celebration image asset (photo-like celebratory portrait) at frontend/public/assets/generated/celebration-default-photo.dim_900x700.png so it can be referenced directly by the modal."
+          "description": "Add the new required default celebration image asset at the exact static path frontend/public/assets/generated/celebration-default-selfieGirl.dim_696x609.png."
         },
         {
           "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
           "operation": "modify",
-          "description": "Reference the static asset at frontend/public/assets/generated/celebration-default-photo.dim_900x700.png directly in the modal’s media area default state (no backend involvement). Continue composing existing shadcn-ui components (verify the component's usage instructions before implementing)."
+          "description": "Update DEFAULT_CELEBRATION_IMAGE to reference /assets/generated/celebration-default-selfieGirl.dim_696x609.png so the modal renders the new default image correctly when no user photo is selected."
         }
       ]
     }

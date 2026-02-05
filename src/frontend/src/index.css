@@ -150,11 +150,55 @@
     }
 
     .media-preview-container {
-        @apply relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-muted;
+        @apply relative w-full rounded-lg overflow-hidden bg-muted;
+        aspect-ratio: 4/3;
+        min-height: 300px;
     }
 
     .media-preview-image {
         @apply w-full h-full object-cover;
+    }
+
+    .camera-preview-video {
+        @apply w-full h-full object-cover;
+        transform: scaleX(-1);
+    }
+
+    .camera-loading-overlay {
+        @apply absolute inset-0 flex items-center justify-center;
+        background-color: oklch(0 0 0 / 0.7);
+        z-index: 5;
+    }
+
+    .camera-loading-content {
+        @apply flex flex-col items-center justify-center;
+    }
+
+    .countdown-overlay {
+        @apply absolute inset-0 flex items-center justify-center;
+        background-color: oklch(0 0 0 / 0.4);
+        z-index: 5;
+    }
+
+    .countdown-text {
+        @apply text-white font-bold text-8xl;
+        text-shadow: 0 4px 12px oklch(0 0 0 / 0.5);
+        animation: countdown-pulse 0.8s ease-in-out;
+    }
+
+    @keyframes countdown-pulse {
+        0% {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
     }
 
     .media-placeholder {
