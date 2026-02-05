@@ -26,7 +26,7 @@ export default function CenteredNotification({
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
       <div
         className="bg-foreground text-background px-6 py-4 rounded-lg shadow-2xl font-lora-italic text-center max-w-md mx-4 pointer-events-auto animate-in fade-in zoom-in-95 duration-200"
         role="alert"

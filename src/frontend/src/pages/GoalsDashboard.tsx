@@ -154,6 +154,7 @@ export default function GoalsDashboard() {
   // Notification state
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationDuration, setNotificationDuration] = useState(3000);
 
   // Persist to localStorage whenever cards change
   useEffect(() => {
@@ -241,6 +242,7 @@ export default function GoalsDashboard() {
     if (goal) {
       // Show notification
       setNotificationMessage(`The goal "${goal.text}" has been added to ${selectedMonth}`);
+      setNotificationDuration(3000);
       setNotificationVisible(true);
     }
 
@@ -280,6 +282,12 @@ export default function GoalsDashboard() {
     } else {
       setMonthModalOpen(open);
     }
+  };
+
+  const handleUploadSaveSuccess = () => {
+    setNotificationMessage('Successfully saved! 📸');
+    setNotificationDuration(5000);
+    setNotificationVisible(true);
   };
 
   const startEditing = (cardId: string, goalId: string, currentText: string) => {
@@ -375,6 +383,7 @@ export default function GoalsDashboard() {
           <YearlySummaryTable 
             cards={cards} 
             onBackToDashboard={() => setView('dashboard')}
+            onUploadSaveSuccess={handleUploadSaveSuccess}
           />
         </main>
 
@@ -392,6 +401,14 @@ export default function GoalsDashboard() {
             </a>
           </p>
         </footer>
+
+        {/* Centered Notification */}
+        <CenteredNotification
+          message={notificationMessage}
+          visible={notificationVisible}
+          onDismiss={() => setNotificationVisible(false)}
+          duration={notificationDuration}
+        />
       </div>
     );
   }
@@ -554,6 +571,7 @@ export default function GoalsDashboard() {
         message={notificationMessage}
         visible={notificationVisible}
         onDismiss={() => setNotificationVisible(false)}
+        duration={notificationDuration}
       />
     </div>
   );

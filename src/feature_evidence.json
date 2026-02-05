@@ -2,9 +2,67 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-the-time-bound-targets-2026-100-completion-congrats-modal-monthlycompletioncelebrationmodal-change-the-default-when-no-user-photo-is-selected-image-shown-in-the-media-area-below-the-text-want-to-celebrate-with-a-selfie-to-the-user-provided-uploaded-image-selfiegirl-jpg-served-as-a-static-asset-from-the-frontend",
-      "featureTitle": "In the “Time-Bound targets - 2026” 100% completion congrats modal (MonthlyCompletionCelebrationModal), change the default (when no user photo is selected) image shown in the media area below the text “Want to celebrate with a selfie?” to the user-provided uploaded image (selfieGirl.jpg), served as a static asset from the frontend.",
+      "featureId": "feature-in-frontend-src-components-monthlycompletioncelebrationmodal-tsx-when-a-selfie-has-been-captured-and-the-composited-photo-is-being-displayed-i-e-after-capture-completes-and-the-static-preview-is-shown-replace-the-existing-primary-action-button-labeled-take-selfie-share-with-two-buttons-labeled-save-to-memories-and-retake",
+      "featureTitle": "In `frontend/src/components/MonthlyCompletionCelebrationModal.tsx`, when a selfie has been captured and the composited photo is being displayed (i.e., after capture completes and the static preview is shown), replace the existing primary action button labeled \"Take Selfie & Share\" with two buttons labeled \"Save to Memories\" and \"Retake\".",
       "files": [
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-change-the-selfie-capture-flow-in-frontend-src-components-monthlycompletioncelebrationmodal-tsx-so-that-capturing-a-selfie-does-not-automatically-save-the-image-to-monthly-memories-instead-saving-to-localstorage-via-savemonthlymemory-month-as-month-compositeddataurl-and-invoking-onmemorysaved-month-as-month-must-happen-only-when-the-user-clicks-the-new-save-to-memories-button",
+      "featureTitle": "Change the selfie capture flow in `frontend/src/components/MonthlyCompletionCelebrationModal.tsx` so that capturing a selfie does NOT automatically save the image to monthly memories; instead, saving to localStorage via `saveMonthlyMemory(month as Month, compositedDataUrl)` and invoking `onMemorySaved(month as Month)` must happen only when the user clicks the new \"Save to Memories\" button.",
+      "files": [
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-the-retake-button-behavior-in-frontend-src-components-monthlycompletioncelebrationmodal-tsx-when-clicked-from-the-selfie-preview-state-return-the-modal-to-camera-mode-to-allow-capturing-a-new-selfie-clearing-the-current-preview-as-needed-and-re-running-the-existing-camera-start-countdown-flow",
+      "featureTitle": "Implement the \"Retake\" button behavior in `frontend/src/components/MonthlyCompletionCelebrationModal.tsx`: when clicked from the selfie preview state, return the modal to camera mode to allow capturing a new selfie (clearing the current preview as needed and re-running the existing camera start + countdown flow).",
+      "files": [
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-when-the-user-clicks-save-to-memories-in-the-congrats-modal-show-a-centered-pop-up-notification-using-the-existing-frontend-src-components-centerednotification-tsx-component-with-the-exact-english-message-successfully-saved-and-auto-dismiss-it-after-5-seconds-5000ms",
+      "featureTitle": "When the user clicks \"Save to Memories\" in the congrats modal, show a centered pop-up notification using the existing `frontend/src/components/CenteredNotification.tsx` component with the exact English message \"Successfully saved! 📸\" and auto-dismiss it after 5 seconds (5000ms).",
+      "files": [
+        "frontend/src/components/CenteredNotification.tsx",
         "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
       ],
       "components": [
@@ -17,25 +75,6 @@
       ],
       "testIds": [
         "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-the-new-default-image-file-to-the-static-assets-folder-at-frontend-public-assets-generated-and-update-the-default-image-reference-in-frontend-src-components-monthlycompletioncelebrationmodal-tsx-to-use-this-new-filename",
-      "featureTitle": "Add the new default image file to the static assets folder at frontend/public/assets/generated and update the default-image reference in frontend/src/components/MonthlyCompletionCelebrationModal.tsx to use this new filename.",
-      "files": [
-        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
       ],
       "confidence": "high"
     }

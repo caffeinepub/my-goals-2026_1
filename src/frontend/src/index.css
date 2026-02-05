@@ -134,6 +134,77 @@
         background-color: oklch(0.97 0.02 85);
     }
 
+    /* Monthly Memory Row styling */
+    .monthly-memory-row td {
+        background-color: oklch(0.98 0.01 85);
+    }
+
+    /* Monthly Memory cell centering wrapper */
+    .monthly-memory-cell-wrapper {
+        @apply flex items-center justify-center w-full;
+        min-height: 100px;
+    }
+
+    /* Polaroid thumbnail styles (for yearly summary table) */
+    .polaroid-container {
+        @apply inline-flex items-center justify-center;
+        transform-origin: center center;
+    }
+
+    .polaroid-frame {
+        @apply relative inline-block;
+        background-color: oklch(1 0 0);
+        padding: 8px 8px 20px 8px;
+        box-shadow: 0 4px 8px oklch(0 0 0 / 0.15), 0 2px 4px oklch(0 0 0 / 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        max-width: 70px;
+        transform-origin: center center;
+    }
+
+    .polaroid-frame:hover {
+        box-shadow: 0 6px 12px oklch(0 0 0 / 0.2), 0 3px 6px oklch(0 0 0 / 0.15);
+    }
+
+    .polaroid-image {
+        @apply w-full h-auto block;
+        aspect-ratio: 1;
+        object-fit: cover;
+    }
+
+    /* Rotation variants for Polaroid effect - with stable centering */
+    .polaroid-rotate-left {
+        transform: rotate(-2deg);
+    }
+
+    .polaroid-rotate-right {
+        transform: rotate(2deg);
+    }
+
+    .polaroid-rotate-left-alt {
+        transform: rotate(-3deg);
+    }
+
+    .polaroid-rotate-right-alt {
+        transform: rotate(3deg);
+    }
+
+    /* Hover scale that preserves rotation */
+    .polaroid-container:hover .polaroid-rotate-left {
+        transform: rotate(-2deg) scale(1.05);
+    }
+
+    .polaroid-container:hover .polaroid-rotate-right {
+        transform: rotate(2deg) scale(1.05);
+    }
+
+    .polaroid-container:hover .polaroid-rotate-left-alt {
+        transform: rotate(-3deg) scale(1.05);
+    }
+
+    .polaroid-container:hover .polaroid-rotate-right-alt {
+        transform: rotate(3deg) scale(1.05);
+    }
+
     /* Celebration modal styles */
     .celebration-modal {
         @apply relative;
@@ -153,10 +224,6 @@
         @apply relative w-full rounded-lg overflow-hidden bg-muted;
         aspect-ratio: 4/3;
         min-height: 300px;
-    }
-
-    .media-preview-image {
-        @apply w-full h-full object-cover;
     }
 
     .camera-preview-video {
@@ -201,20 +268,54 @@
         }
     }
 
+    /* Celebration modal Polaroid frame styles */
+    .celebration-polaroid-wrapper {
+        @apply w-full h-full flex flex-col items-center justify-center p-4;
+        background: linear-gradient(135deg, oklch(0.95 0.01 85) 0%, oklch(0.92 0.02 85) 100%);
+    }
+
+    .celebration-caption {
+        @apply text-center text-2xl font-lora-italic mb-4;
+        color: oklch(0.205 0 0);
+        text-shadow: 0 2px 4px oklch(0 0 0 / 0.1);
+    }
+
+    .celebration-polaroid-frame {
+        @apply relative inline-block;
+        background-color: oklch(1 0 0);
+        padding: 16px 16px 40px 16px;
+        box-shadow: 
+            0 8px 16px oklch(0 0 0 / 0.15), 
+            0 4px 8px oklch(0 0 0 / 0.1),
+            inset 0 0 0 1px oklch(0.9 0 0 / 0.3);
+        max-width: 90%;
+        max-height: 90%;
+        transform: rotate(-1deg);
+    }
+
+    .celebration-polaroid-image {
+        @apply w-full h-auto block;
+        max-height: 400px;
+        object-fit: cover;
+    }
+
+    .celebration-badge-overlay {
+        @apply absolute left-1/2 -translate-x-1/2 w-[90%] max-w-[350px];
+        bottom: 50px;
+        z-index: 10;
+        transform: translateX(-50%) rotate(2deg);
+    }
+
+    .celebration-badge-image {
+        @apply w-full h-auto;
+        filter: drop-shadow(0 4px 8px oklch(0 0 0 / 0.3));
+    }
+
     .media-placeholder {
         @apply w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50;
     }
 
     .media-placeholder-content {
         @apply flex flex-col items-center justify-center text-center;
-    }
-
-    .badge-overlay {
-        @apply absolute bottom-4 left-1/2 -translate-x-1/2 w-[85%] max-w-[400px];
-        z-index: 10;
-    }
-
-    .badge-image {
-        @apply w-full h-auto drop-shadow-lg;
     }
 }

@@ -1,41 +1,71 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Use uploaded selfieGirl asset as default celebration modal image (Time-Bound targets - 2026)",
+  "title": "Update congrats modal selfie-preview actions and centered 5s save notification",
   "requirements": [
     {
-      "id": "REQ-4",
-      "summary": "Update the MonthlyCompletionCelebrationModal default (no user photo selected) media preview to use the provided selfieGirl image served from a static frontend asset path.",
+      "id": "REQ-1",
+      "summary": "Replace the selfie-preview primary action with \"Save to Memories\" and \"Retake\" buttons after a composited selfie is displayed.",
       "acceptanceCriteria": [
-        "When the congrats modal opens and the user has not captured/uploaded an image, the displayed preview image matches the provided selfieGirl.jpg content (not the previous default image).",
-        "After the user captures or uploads a photo, that selected photo replaces the default image as it does today.",
-        "The default image is loaded from a static frontend path (not via the backend)."
+        "After a selfie is captured and displayed in the modal, the UI shows a \"Save to Memories\" button and a \"Retake\" button.",
+        "After a selfie is captured and displayed in the modal, the \"Take Selfie & Share\" button is not shown."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
           "operation": "modify",
-          "description": "Change the default image constant used when selectedImage is null so the media preview renders the new static asset (frontend/public/assets/generated/celebration-default-selfieGirl.dim_696x609.png) in the “Want to celebrate with a selfie?” area, while preserving existing behavior where captured/uploaded images override the default."
+          "description": "Update the action-buttons rendering to detect the selfie preview state (composited image displayed after capture) and conditionally render two buttons labeled \"Save to Memories\" and \"Retake\" instead of the existing \"Take Selfie & Share\" primary action."
         }
       ]
     },
     {
-      "id": "REQ-5",
-      "summary": "Add the required generated default image to static assets and point DEFAULT_CELEBRATION_IMAGE to the new filename.",
+      "id": "REQ-2",
+      "summary": "Ensure selfie capture does not auto-save; save to monthly memories only when the user clicks \"Save to Memories\".",
       "acceptanceCriteria": [
-        "The project contains the new default image under frontend/public/assets/generated with the exact filename specified in imageRequirements.required.",
-        "DEFAULT_CELEBRATION_IMAGE in MonthlyCompletionCelebrationModal.tsx points to the new asset path and renders correctly in the modal."
+        "Capturing a selfie and seeing the static preview does not persist the memory until the user clicks \"Save to Memories\".",
+        "Clicking \"Save to Memories\" saves the currently previewed composited selfie to monthly memories for the active month and refreshes the yearly summary memory thumbnails via the existing `onMemorySaved` callback flow."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/celebration-default-selfieGirl.dim_696x609.png",
-          "operation": "create",
-          "description": "Add the new required default celebration image asset at the exact static path frontend/public/assets/generated/celebration-default-selfieGirl.dim_696x609.png."
-        },
+          "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
+          "operation": "modify",
+          "description": "Remove the automatic `saveMonthlyMemory(month as Month, compositedDataUrl)` and `onMemorySaved(month as Month)` calls from the selfie capture completion path so the composited preview is shown without persisting. Add a dedicated \"Save to Memories\" click handler that saves the currently previewed composited data URL and invokes the existing `onMemorySaved(month as Month)` callback only when clicked."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Implement \"Retake\" to return from selfie preview to camera mode and re-run the existing countdown capture flow.",
+      "acceptanceCriteria": [
+        "Clicking \"Retake\" from the selfie preview switches back to the live camera preview and initiates the same countdown-driven capture experience as the original selfie flow.",
+        "After clicking \"Retake\", the previously captured preview is no longer shown unless captured again."
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
           "operation": "modify",
-          "description": "Update DEFAULT_CELEBRATION_IMAGE to reference /assets/generated/celebration-default-selfieGirl.dim_696x609.png so the modal renders the new default image correctly when no user photo is selected."
+          "description": "Add a \"Retake\" handler usable from the selfie preview state that clears the current composited preview state (e.g., `selectedImage`, selfie-preview flags) and then triggers the existing camera start + preview-ready + countdown-driven capture flow (by reusing the current selfie flow logic) so the user can capture a new selfie."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Show a centered success notification for 5 seconds when \"Save to Memories\" is clicked, above the modal content.",
+      "acceptanceCriteria": [
+        "Clicking \"Save to Memories\" shows a notification centered on the screen with text: \"Successfully saved! 📸\".",
+        "The notification automatically disappears after 5 seconds.",
+        "The notification appears above the modal content (not hidden behind it)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
+          "operation": "modify",
+          "description": "Import and render the existing `CenteredNotification` component from within the modal component (so it is present while the modal is open). Add state to control its visibility and wire it to the \"Save to Memories\" action to display the exact message \"Successfully saved! 📸\" with a `duration` of 5000ms."
+        },
+        {
+          "path": "frontend/src/components/CenteredNotification.tsx",
+          "operation": "modify",
+          "description": "Adjust the notification container stacking (z-index) so the centered notification reliably appears above the modal content/overlay when shown (while keeping its fixed, centered behavior and auto-dismiss functionality intact)."
         }
       ]
     }

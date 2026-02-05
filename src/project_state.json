@@ -1,439 +1,355 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 6,
-  "summary": "Goals Dashboard is a React + Vite + Tailwind single-page web app for tracking “lifetime goals” across predefined, color-coded category cards. Users can add, inline-edit, delete, and mark goals complete. When a goal is completed, the UI prompts the user to assign it to a month via a month-selection modal; all goal data is persisted locally in browser localStorage. The app also includes a yearly “Time-Bound targets - 2026” summary view that projects completed+scheduled goals into a category-by-month table with UI-only per-goal checkboxes, per-month completion statistics, donut progress visualizations, and an automatic celebration modal when a month reaches 100% completion. The celebration modal supports a default static image (shown when no user photo is selected), confetti/badge overlays, taking a selfie via getUserMedia with live preview, a 5→1 countdown, auto-capture to a File using canvas, optional photo upload, and cleanup of camera/timers/object URLs. The repository additionally contains Internet Identity authentication context and an ICP actor creation hook plus a minimal Motoko canister scaffold, though no backend goal queries are used in this version.",
+  "projectStateVersion": 3,
+  "summary": "Goals Dashboard is a Vite + React + TypeScript single-page web app for tracking “lifetime goals” across predefined, color-coded life-category cards. Users can add, inline-edit, delete, and mark goals complete. When a goal is completed, the app prompts the user to assign it to a month via a month-selection modal. A separate yearly summary view (“Time-Bound targets - 2026”) projects completed+scheduled goals into a category-by-month table with UI-only checkboxes, per-month completion statistics, and donut progress charts. When a month reaches 100% completion (based on the summary checkboxes), a celebration modal opens with confetti and options to take a selfie (getUserMedia + countdown) or upload a photo; the chosen image is composited client-side into a Polaroid-style JPEG with a badge overlay and saved as a per-month “memory” in localStorage. These monthly memories appear as Polaroid thumbnails in the yearly summary and open into a lightbox that includes a “Share to Social Media” UI (system share when available, otherwise download/copy/share-link fallbacks for Instagram/Twitter/Facebook). Internet Identity authentication and ICP actor creation exist as scaffolding; this version manages goal state locally and does not use backend queries.",
   "existing_features": [
     {
       "id": "IF-1",
-      "title": "App bootstrap with React Query and Internet Identity provider",
+      "title": "React SPA bootstrap with QueryClientProvider and InternetIdentityProvider",
       "synonyms": [
         "main.tsx provider setup",
-        "QueryClientProvider + InternetIdentityProvider"
+        "TanStack Query + Internet Identity context"
       ],
-      "description": "Bootstraps the React app by creating a TanStack QueryClient and wrapping the component tree with QueryClientProvider and InternetIdentityProvider; mounts the app and loads global styles.",
+      "description": "Bootstraps the React app and wraps it with TanStack QueryClientProvider and an InternetIdentityProvider context; loads global Tailwind styles.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-2",
-      "title": "Goals dashboard as the main application page with internal view toggle",
+      "title": "Root app composition with global Sonner toaster",
       "synonyms": [
-        "App renders GoalsDashboard",
-        "dashboard/summary toggle"
+        "App.tsx",
+        "toast notifications"
       ],
-      "description": "Renders the GoalsDashboard as the primary UI and switches between a dashboard and a summary view using internal component state (no router).",
+      "description": "Renders the main GoalsDashboard page and mounts a global Sonner Toaster used for lightweight user feedback (e.g., sharing actions).",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-3",
-      "title": "Predefined category cards with emojis, custom colors, and seeded goals",
+      "title": "Goals dashboard with predefined category cards",
       "synonyms": [
-        "Initial cards",
-        "color-coded categories"
+        "GoalsDashboard cards view",
+        "life categories"
       ],
-      "description": "Defines initial goal cards (category title + emoji) with per-card OKLCH header/background colors and seeded goal lists.",
+      "description": "Renders predefined, color-coded category cards (title + emoji + theme colors) each containing a list of goals with checkboxes and action controls.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-4",
-      "title": "Local persistence of cards and goals via localStorage",
+      "title": "Local persistence of goal cards via browser localStorage",
       "synonyms": [
-        "Persist goals on reload",
-        "localStorage hydration"
+        "localStorage hydration",
+        "persist goals on reload"
       ],
-      "description": "Hydrates cards from localStorage on initial mount (fallback to defaults) and persists updates whenever cards change.",
+      "description": "Hydrates cards from localStorage on initial render (fallback to defaults) and persists the cards/goals structure back to localStorage whenever it changes.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-5",
-      "title": "Goal completion toggles with checkbox and month clearing on uncheck",
+      "title": "Inline editing of goal text with keyboard shortcuts",
       "synonyms": [
-        "Mark goal complete/incomplete",
-        "clear month on uncomplete"
+        "click-to-edit",
+        "in-place rename"
       ],
-      "description": "Each goal row includes a checkbox to toggle completion; unchecking a goal clears any month assignment (month: undefined) and marks it incomplete.",
+      "description": "Clicking a goal label enters edit mode with an auto-focused input; saves on blur/Enter (trimmed non-empty) and cancels on Escape.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-6",
-      "title": "Completion-triggered month assignment with pending-goal tracking",
+      "title": "Add new goals within a category card",
       "synonyms": [
-        "Pending goal flow",
-        "completion opens month modal"
+        "create goal",
+        "Plus button"
       ],
-      "description": "When a goal transitions from incomplete to complete, the UI records it as a pending goal and opens the month selection modal to schedule it.",
+      "description": "Adds a new goal to a category (with a generated id) and immediately enters inline edit mode for the new item.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-7",
-      "title": "Month selection modal (12-month grid) with confirm/cancel actions",
+      "title": "Delete goals within a category card",
       "synonyms": [
-        "MonthSelectionModal",
-        "month picker dialog"
+        "remove goal",
+        "Trash button"
       ],
-      "description": "Dialog modal prompting for a month assignment with a 3×4 grid of month buttons; Confirm is disabled until a month is selected.",
+      "description": "Removes a goal from its category via a delete icon button.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-8",
-      "title": "Modal confirm/cancel behavior and close-to-cancel handling",
+      "title": "Goal completion toggle with month clearing on uncheck",
       "synonyms": [
-        "Confirm assigns month",
-        "Cancel reverts completion",
-        "Close dialog cancels"
+        "mark complete/incomplete",
+        "clear month assignment"
       ],
-      "description": "Confirm assigns the selected month to the pending goal and closes the modal; canceling/closing reverts the pending goal back to incomplete and resets modal state.",
+      "description": "Toggles a goal’s completed status; when unchecking a goal it resets completed=false and clears any month assignment (month: undefined).",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-9",
-      "title": "Centered notification overlay with auto-dismiss",
+      "title": "Completion-triggered month assignment flow",
       "synonyms": [
-        "CenteredNotification",
-        "overlay toast"
+        "pending goal flow",
+        "month picker dialog"
       ],
-      "description": "Displays a centered overlay notification message and automatically dismisses after a configurable duration (default 3000ms).",
+      "description": "When checking a goal, the UI opens a month selection modal. Confirm assigns the selected month; cancel/close reverts the pending completion.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-10",
-      "title": "Inline editing of goal text with focus and keyboard controls",
+      "title": "Month selection modal (12-month grid with confirm/cancel)",
       "synonyms": [
-        "Click-to-edit goal",
-        "in-place rename"
+        "MonthSelectionModal",
+        "month picker"
       ],
-      "description": "Clicking a goal label enters edit mode with an auto-focused input; saves on blur or Enter (trimmed, non-empty) and cancels on Escape.",
+      "description": "Dialog prompts selection of a month using a 3×4 button grid. Confirm is disabled until a month is chosen; cancel closes and aborts.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-11",
-      "title": "Add new goals within a category card with immediate edit",
+      "title": "Centered auto-dismissing notification overlay",
       "synonyms": [
-        "Create goal",
-        "plus button adds row"
+        "CenteredNotification",
+        "toast-like overlay"
       ],
-      "description": "Allows adding a new goal (default text 'New goal') and immediately enters edit mode for the new item.",
+      "description": "Displays a centered message overlay (aria-live) and auto-dismisses after a configurable duration; used for month assignment confirmation and upload-save success feedback.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-12",
-      "title": "Delete goals within a category card",
+      "title": "Dashboard ↔ yearly summary view toggle (no routing)",
       "synonyms": [
-        "Remove goal",
-        "trash icon"
+        "single-page view switch",
+        "See goals per month"
       ],
-      "description": "Allows deleting any goal via a per-row action button.",
+      "description": "Uses local state to switch between the main dashboard and the yearly summary table; summary includes a back button to return.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-13",
-      "title": "Hover/focus-revealed per-row action buttons and dashed separators",
+      "title": "Shared month constants and Month union type",
       "synonyms": [
-        "Row actions on hover",
-        "dashed dividers"
+        "MONTHS constant",
+        "Month type"
       ],
-      "description": "Reserves space for actions and reveals add/delete buttons on hover or focus-within; renders dashed separators between goal rows (except after the last item).",
+      "description": "Exports a shared MONTHS array (January–December) and a derived Month union type used throughout the app.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-14",
-      "title": "Single-row card layout with conditional horizontal scrolling",
+      "title": "Yearly summary table grouped by category and month",
       "synonyms": [
-        "No-wrap cards row",
-        "conditional x-scroll"
+        "Time-Bound targets - 2026 table",
+        "goals per month table"
       ],
-      "description": "Displays category cards in a single horizontal row (no wrap) and enables horizontal scrolling when the number of cards exceeds a threshold (cards.length > 7).",
+      "description": "Projects only goals that are (completed && month assigned) into a category-by-month table with tinted month columns and per-category rows.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-15",
-      "title": "Dashboard-to-summary navigation with back navigation",
+      "title": "UI-only completion checkboxes in yearly summary",
       "synonyms": [
-        "See goals per month",
-        "Back to dashboard"
+        "interactive summary checkboxes",
+        "non-persistent checked state"
       ],
-      "description": "Provides a CTA to switch to the yearly summary view and a back button in the summary header to return to the dashboard.",
+      "description": "Provides per-goal checkboxes in the summary view whose state is stored in a local checkedState map and does not write back to goal data.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-16",
-      "title": "Yearly summary table organized by category and month with tinted backgrounds",
+      "title": "Per-month completion statistics and progress computation",
       "synonyms": [
-        "Goals per month table",
-        "Time-Bound targets - 2026"
+        "completed/incomplete percentages",
+        "month stats"
       ],
-      "description": "Renders a table with a Category column and 12 month columns, showing completed goals assigned to each month within each category; month headers/cells use distinct light tinted OKLCH backgrounds.",
+      "description": "Computes total scheduled goals per month and percentage complete/incomplete based on summary checkbox state; also derives progress (0..1) and isComplete flags.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-17",
-      "title": "Summary view shows only completed goals that have a month assignment",
+      "title": "SVG donut chart for monthly progress",
       "synonyms": [
-        "completed+scheduled filter",
-        "month-projected goals"
+        "MonthlyProgressDonut",
+        "progress ring"
       ],
-      "description": "Projects category→month→goals including only goals where completed is true and month is defined; unscheduled completed goals are omitted from the table.",
+      "description": "Displays a circular progress indicator (0..1) using SVG circles with strokeDashoffset and transitions.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-18",
-      "title": "Yearly summary per-goal checkboxes are interactive but UI-only",
+      "title": "Detect 100% completion transitions and open celebration modal",
       "synonyms": [
-        "Interactive summary checkboxes",
-        "non-persistent summary checkbox state"
+        "100% completion trigger",
+        "completion transition detection"
       ],
-      "description": "In the yearly summary view, each listed goal includes an enabled checkbox whose checked state is managed only in the summary component (not persisted).",
+      "description": "Detects false→true transitions of per-month completeness and opens a monthly celebration modal for the completed month.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-19",
-      "title": "Statistics section with per-month completion/incompletion percentages",
+      "title": "Monthly completion celebration modal (confetti + preview + actions)",
       "synonyms": [
-        "Summary statistics footer",
-        "percentage completed"
+        "MonthlyCompletionCelebrationModal",
+        "congratulatory dialog"
       ],
-      "description": "Computes and displays, per month, the percentage completed (checked/total) and incomplete percentage (100-completed); months with 0 goals show 0%/0% and progress=0.",
+      "description": "Celebration dialog with confetti overlay, default image preview inside a Polaroid frame, and actions to take a selfie or upload a photo; performs cleanup on close.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-20",
-      "title": "Monthly progress donut charts in the summary table",
+      "title": "Selfie countdown capture flow with preview readiness and stream cleanup",
       "synonyms": [
-        "Donut chart row",
-        "monthly progress visualization"
+        "countdown-to-capture flow",
+        "waitForPreviewReady",
+        "stop camera after snapshot"
       ],
-      "description": "Renders a donut chart per month column to visualize per-month progress based on checked/total ratio.",
+      "description": "Starts the front camera, waits for preview readiness, runs a 5→0 countdown, captures a snapshot, stops the camera stream immediately after capture, composites the result, and saves it as the month’s memory in localStorage.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-21",
-      "title": "Reusable SVG donut chart component",
+      "title": "Upload-photo flow with compositing, persistence, auto-close, and success callback",
       "synonyms": [
-        "MonthlyProgressDonut",
-        "circular progress ring"
+        "Upload Photo Instead",
+        "file input processing"
       ],
-      "description": "Renders a hollow circular progress indicator using SVG circles with configurable size, color, and 0..1 progress input.",
+      "description": "Allows users to upload an image file, converts it to a data URL, composites it with the Polaroid+overlay treatment, saves it as the month’s memory in localStorage, automatically closes the modal, and triggers a parent callback to display a centered success notification.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-22",
-      "title": "Detect month reaching 100% completion and auto-open celebration modal",
+      "title": "Client-side celebration image compositing (Polaroid frame + overlay badge)",
       "synonyms": [
-        "100% completion trigger",
-        "month completion transition detection"
+        "celebrationImageComposite",
+        "canvas composite"
       ],
-      "description": "Detects when a month transitions from not complete to complete based on UI-only per-goal checkbox state (requires at least 1 goal) and opens a congratulatory modal.",
+      "description": "Generates a JPEG data URL by drawing the selfie/photo onto a white Polaroid frame (with bottom padding) and overlaying an angled badge; includes a helper to convert a File to a data URL and exports a canonical overlay asset path constant.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-23",
-      "title": "100% completion celebration modal UI with confetti and badge overlays",
+      "title": "Monthly memory localStorage utilities",
       "synonyms": [
-        "MonthlyCompletionCelebrationModal",
-        "congratulatory dialog"
+        "monthlyMemoryStorage",
+        "save/get/clear/list memories"
       ],
-      "description": "Implements a celebration dialog with close (X), confetti overlay, badge overlay, and congratulatory headline/message styling; media area supports selfie preview and optional upload.",
+      "description": "Provides save/get/clear/getAll helpers to persist per-month celebration images as data URLs in localStorage using month-based keys.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-24",
-      "title": "Default celebration image shown when no user photo is selected",
+      "title": "Monthly memory thumbnails with Polaroid styling and lightbox",
       "synonyms": [
-        "celebration default placeholder",
-        "static default selfie image"
+        "Monthly Memory row",
+        "thumbnail dialog"
       ],
-      "description": "When the celebration modal is open and the user has not captured or uploaded a photo, a static default image from /assets/generated/... is rendered in the media area (instead of an empty placeholder).",
-      "reqIds": [
-        "REQ-1",
-        "REQ-3"
-      ],
+      "description": "Shows Polaroid-style thumbnails only when a month is 100% complete; clicking opens a Dialog lightbox with the full image.",
+      "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-25",
-      "title": "Celebration modal selfie flow with live front-camera preview",
+      "title": "Share to Social Media UI inside the monthly memory lightbox",
       "synonyms": [
-        "Take Selfie & Share",
-        "getUserMedia live preview"
+        "MonthlyMemoryShareActions button",
+        "lightbox share button"
       ],
-      "description": "Starts a live front-facing camera preview via getUserMedia and renders a mirrored <video> preview inside the modal when camera mode is active.",
+      "description": "Adds a visible “Share to Social Media” control in the top-right of the monthly memory lightbox dialog, designed to be focusable and non-disruptive to image viewing/closing.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-26",
-      "title": "Preview readiness gating and in-preview loading overlay",
+      "title": "Social sharing actions (Instagram/Twitter/Facebook) with Web Share + fallbacks",
       "synonyms": [
-        "Preparing camera overlay",
-        "waitForPreviewReady"
+        "monthlyMemoryShare utilities",
+        "download/copy/share-link fallbacks"
       ],
-      "description": "Gates countdown/capture on confirmed preview readiness (dimensions available and playing) and shows a loading overlay while the preview is not yet ready.",
+      "description": "Implements browser-based sharing without SDKs/backends: uses Web Share API with file sharing when available; otherwise supports downloading the image, copying caption text, and opening platform-appropriate share URLs (Twitter intent, Facebook sharer) with user guidance.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-27",
-      "title": "Selfie countdown (5→1) overlay with automatic capture",
+      "title": "Reusable camera hooks (getUserMedia lifecycle + capture)",
       "synonyms": [
-        "5-second countdown",
-        "auto capture"
+        "useCamera",
+        "useCelebrationCamera"
       ],
-      "description": "Displays a 5→1 countdown overlay once the preview is ready and automatically captures after the countdown completes.",
+      "description": "Implements camera support detection, start/stop and stream cleanup, optional facing-mode switching, photo capture via canvas.toBlob, and a wrapper hook that tracks preview readiness and provides a waitForPreviewReady helper with timeout.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-28",
-      "title": "Selfie capture to File via canvas and preview of captured image",
+      "title": "Runtime configuration loading for Internet Identity settings",
       "synonyms": [
-        "capturePhoto",
-        "canvas.toBlob capture"
+        "config loader",
+        "env.json + Vite env fallback"
       ],
-      "description": "Captures a still frame from video to a File via canvas.toBlob (mirrors for front camera) and previews the captured image using an object URL.",
+      "description": "Loads runtime configuration (e.g., Internet Identity URL/derivation origin) from env.json with fallback to injected environment variables for deployment flexibility.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-29",
-      "title": "Upload photo alternative in celebration modal",
+      "title": "Internet Identity authentication provider (scaffold)",
       "synonyms": [
-        "Upload Photo Instead",
-        "file picker preview"
+        "II auth provider",
+        "AuthClient context"
       ],
-      "description": "Allows selecting an image from local files via a hidden file input (accept='image/*') and previews it using an object URL.",
+      "description": "React Context/provider for @dfinity/auth-client: initializes/restores stored identity, supports login via Internet Identity, logout/clear, and exposes status flags and errors.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-30",
-      "title": "Camera failure handling with in-modal guidance",
+      "title": "ICP backend actor creation hook with React Query caching (scaffold)",
       "synonyms": [
-        "camera blocked/unsupported message",
-        "permission denied guidance"
+        "useActor",
+        "actor cached by principal"
       ],
-      "description": "If camera is unsupported or fails to start, the modal shows an actionable error message guiding the user to upload a photo instead.",
+      "description": "Creates an ICP actor (anonymous or authenticated) keyed by principal in React Query; invalidates and refetches non-actor queries when actor changes.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-31",
-      "title": "Celebration modal cleanup of camera, timers, and object URLs (blob-only revocation)",
+      "title": "Placeholder queries hook indicating local-only state",
       "synonyms": [
-        "stop MediaStream tracks",
-        "revokeObjectURL cleanup",
-        "timer cleanup"
+        "useQueries placeholder",
+        "no backend queries"
       ],
-      "description": "Stops MediaStream tracks on close/capture, clears countdown timers, resets file input, and revokes only blob: object URLs (does not attempt to revoke static asset URLs).",
-      "reqIds": [
-        "REQ-2"
-      ],
+      "description": "Exports an empty module documenting that this version manages goal state locally and does not rely on backend goal queries.",
+      "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-32",
-      "title": "Reusable camera hook (useCamera) for getUserMedia capture",
+      "title": "Backend Motoko canister stub",
       "synonyms": [
-        "camera hook",
-        "videoRef/canvasRef capture"
-      ],
-      "description": "Provides a reusable hook to manage camera lifecycle: support detection, start/stop, switch camera, retry, capture frame to File via canvas.toBlob, and cleanup of active streams.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-33",
-      "title": "Preview readiness wrapper hook (useCelebrationCamera)",
-      "synonyms": [
-        "useCamera wrapper",
-        "preview-ready tracking"
-      ],
-      "description": "Wraps the base camera hook to track preview readiness, provides a timeout-based waitForPreviewReady helper, and strengthens stop/capture with stream cleanup and dimension validation.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-34",
-      "title": "Shared month constants and Month type",
-      "synonyms": [
-        "MONTHS constant",
-        "Month union type"
-      ],
-      "description": "Exports a shared MONTHS array (January–December) and a derived Month TypeScript union type for consistent month labeling and typing.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-35",
-      "title": "Tailwind/OKLCH design system and custom Lora italic typography utility",
-      "synonyms": [
-        "theme tokens",
-        "font-lora-italic",
-        "celebration modal styles"
-      ],
-      "description": "Defines OKLCH-based CSS variables for light/dark themes, extends Tailwind configuration, and provides custom classes for summary checkboxes, statistics styling, and celebration modal layout/overlays.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-36",
-      "title": "Internet Identity authentication context/provider",
-      "synonyms": [
-        "II auth provider",
-        "AuthClient context"
-      ],
-      "description": "Implements a React Context provider around @dfinity/auth-client to initialize/restore identity, support login via Internet Identity, logout/clear identity, and expose status flags and errors.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-37",
-      "title": "Runtime env.json configuration for Internet Identity URL",
-      "synonyms": [
-        "env.json runtime config",
-        "II_URL config"
-      ],
-      "description": "Provides runtime configuration (env.json) used to supply the Internet Identity provider URL (and related config via the config loader).",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-38",
-      "title": "Authenticated/anonymous ICP actor creation hook with React Query caching",
-      "synonyms": [
-        "useActor hook",
-        "actor cached via principal"
-      ],
-      "description": "Creates and caches an ICP backend actor using React Query; switches between anonymous and authenticated identities based on Internet Identity state and invalidates/refetches other queries when the actor changes.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-39",
-      "title": "Backend Motoko canister scaffold",
-      "synonyms": [
-        "Backend stub",
+        "backend scaffold",
         "main.mo actor"
       ],
       "description": "Includes a minimal Motoko canister entrypoint defining an empty actor placeholder for future backend logic.",
@@ -441,41 +357,46 @@
       "version": 1
     },
     {
-      "id": "IF-40",
-      "title": "Placeholder queries hook documenting no backend queries",
+      "id": "IF-33",
+      "title": "Tailwind + shadcn/ui styling with custom summary/celebration/polaroid CSS",
       "synonyms": [
-        "useQueries placeholder",
-        "local-only goal state"
+        "design system",
+        "OKLCH theme tokens",
+        "custom component styles"
       ],
-      "description": "Exports an empty module noting that this version manages goal state locally and does not use backend queries for goal data.",
+      "description": "Uses Tailwind CSS with OKLCH-based theme tokens and shadcn/ui components, plus custom CSS for yearly summary table, enhanced checkbox styling, Polaroid thumbnail effects, and celebration modal camera/countdown/polaroid layouts.",
       "reqIds": [],
       "version": 1
     },
     {
-      "id": "IF-41",
-      "title": "Vite configuration for aliasing, environment injection, and ICP dev proxy",
-      "synonyms": [
-        "vite.config.ts",
-        "@ alias",
-        "dev proxy"
+      "id": "feature-in-frontend-src-components-monthlycompletioncelebrationmodal-tsx-when-a-selfie-has-been-captured-and-the-composited-photo-is-being-displayed-i-e-after-capture-completes-and-the-static-preview-is-shown-replace-the-existing-primary-action-button-labeled-take-selfie-share-with-two-buttons-labeled-save-to-memories-and-retake",
+      "title": "In `frontend/src/components/MonthlyCompletionCelebrationModal.tsx`, when a selfie has been captured and the composited photo is being displayed (i.e., after capture completes and the static preview is shown), replace the existing primary action button labeled \"Take Selfie & Share\" with two buttons labeled \"Save to Memories\" and \"Retake\".",
+      "reqIds": [
+        "REQ-1"
       ],
-      "description": "Configures Vite with React plugin, '@' path alias to src, environment variable injection, and a dev server proxy for '/api' to a local replica; outputs build artifacts to dist.",
-      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-in-the-time-bound-targets-2026-100-completion-congrats-modal-monthlycompletioncelebrationmodal-change-the-default-when-no-user-photo-is-selected-image-shown-in-the-media-area-below-the-text-want-to-celebrate-with-a-selfie-to-the-user-provided-uploaded-image-selfiegirl-jpg-served-as-a-static-asset-from-the-frontend",
-      "title": "In the “Time-Bound targets - 2026” 100% completion congrats modal (MonthlyCompletionCelebrationModal), change the default (when no user photo is selected) image shown in the media area below the text “Want to celebrate with a selfie?” to the user-provided uploaded image (selfieGirl.jpg), served as a static asset from the frontend.",
+      "id": "feature-change-the-selfie-capture-flow-in-frontend-src-components-monthlycompletioncelebrationmodal-tsx-so-that-capturing-a-selfie-does-not-automatically-save-the-image-to-monthly-memories-instead-saving-to-localstorage-via-savemonthlymemory-month-as-month-compositeddataurl-and-invoking-onmemorysaved-month-as-month-must-happen-only-when-the-user-clicks-the-new-save-to-memories-button",
+      "title": "Change the selfie capture flow in `frontend/src/components/MonthlyCompletionCelebrationModal.tsx` so that capturing a selfie does NOT automatically save the image to monthly memories; instead, saving to localStorage via `saveMonthlyMemory(month as Month, compositedDataUrl)` and invoking `onMemorySaved(month as Month)` must happen only when the user clicks the new \"Save to Memories\" button.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-retake-button-behavior-in-frontend-src-components-monthlycompletioncelebrationmodal-tsx-when-clicked-from-the-selfie-preview-state-return-the-modal-to-camera-mode-to-allow-capturing-a-new-selfie-clearing-the-current-preview-as-needed-and-re-running-the-existing-camera-start-countdown-flow",
+      "title": "Implement the \"Retake\" button behavior in `frontend/src/components/MonthlyCompletionCelebrationModal.tsx`: when clicked from the selfie preview state, return the modal to camera mode to allow capturing a new selfie (clearing the current preview as needed and re-running the existing camera start + countdown flow).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-when-the-user-clicks-save-to-memories-in-the-congrats-modal-show-a-centered-pop-up-notification-using-the-existing-frontend-src-components-centerednotification-tsx-component-with-the-exact-english-message-successfully-saved-and-auto-dismiss-it-after-5-seconds-5000ms",
+      "title": "When the user clicks \"Save to Memories\" in the congrats modal, show a centered pop-up notification using the existing `frontend/src/components/CenteredNotification.tsx` component with the exact English message \"Successfully saved! 📸\" and auto-dismiss it after 5 seconds (5000ms).",
       "reqIds": [
         "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-the-new-default-image-file-to-the-static-assets-folder-at-frontend-public-assets-generated-and-update-the-default-image-reference-in-frontend-src-components-monthlycompletioncelebrationmodal-tsx-to-use-this-new-filename",
-      "title": "Add the new default image file to the static assets folder at frontend/public/assets/generated and update the default-image reference in frontend/src/components/MonthlyCompletionCelebrationModal.tsx to use this new filename.",
-      "reqIds": [
-        "REQ-5"
       ],
       "version": 1
     }
@@ -483,45 +404,36 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "In 'Time-Bound targets - 2026' 100% completion congrats modal, show a specific default image directly below the text 'want to celebrate with a selfie?'",
+      "summary": "In congrats modal, after selfie is captured and displayed, replace 'Take Selfie & Share' with 'Save to Memories' and 'Retake'; show centered auto-dismissing (5s) “¡Successfully saved! 📸” notification on Save.",
       "reqIds": [],
       "status": "pending"
     }
   ],
   "architectural_notes": [
-    "Single-page React UI uses internal view state ('dashboard' | 'summary') rather than a router.",
-    "Core domain data (cards → goals) is managed in React component state and persisted via localStorage hydrate-on-mount + save-on-change.",
-    "Goal completion uses a controlled “pending goal” flow: checking a goal opens a month picker; confirm assigns month; cancel/close reverts completion.",
-    "Yearly summary is a derived projection filtered to (completed && month assigned) using shared MONTHS constants for consistent month labeling/typing.",
-    "Summary per-goal checkbox state is intentionally UI-only (local state) and does not mutate persisted goal completion/month data.",
-    "100% completion celebration is triggered by detecting false→true transitions for per-month completeness using a previous-completion ref.",
-    "Camera/selfie functionality is encapsulated in reusable hooks (useCamera + useCelebrationCamera) exposing refs and lifecycle actions (start/stop/capture) plus preview-readiness gating.",
-    "Celebration modal uses static public assets (e.g., /assets/generated/...) for overlays and a default image when no user-captured/uploaded photo is present.",
-    "UI is composed using shadcn/ui primitives (Dialog/Button/Input/Checkbox) styled with Tailwind plus OKLCH theme tokens and custom CSS classes.",
-    "Internet Identity authentication is implemented as a React Context/provider and ICP actor instantiation is wrapped in a React Query hook keyed by principal."
+    "Single-page React app; dashboard vs yearly summary switching is handled via local component state rather than routing.",
+    "Core goals data (cards/goals) is kept in React state and persisted to browser localStorage (hydrate on mount, persist on change).",
+    "Goal completion uses a “pending completion” flow: checking a goal immediately toggles completion and opens a month picker; confirm assigns month; cancel/close reverts completion.",
+    "Yearly summary is a derived projection of (completed && month assigned) goals using shared MONTHS constants and a Month union type.",
+    "Yearly summary checkbox state is intentionally UI-only (kept in a local map) and does not mutate persisted goal completion data.",
+    "100% month completion is detected by comparing computed month completeness against a previous-completion ref; a false→true transition opens the celebration modal.",
+    "Camera functionality is encapsulated in hooks (useCamera + useCelebrationCamera) to manage getUserMedia lifecycle, preview readiness gating, capture, and cleanup.",
+    "Celebration images are generated client-side via Canvas compositing (Polaroid frame + angled overlay badge) and stored as JPEG data URLs.",
+    "Monthly memories are stored in localStorage via a small storage utility and displayed conditionally (only when the month is 100% complete) as Polaroid thumbnails with a Dialog lightbox.",
+    "Sharing monthly memories is implemented entirely client-side (Web Share API when available; otherwise download/copy/share-link guidance) without third-party SDKs or backend changes."
   ],
   "known_issues": [
-    "localStorage hydration uses JSON.parse without schema/version validation; malformed stored data can lead to runtime shape issues.",
-    "Completing a goal sets completed=true before month confirmation; a refresh while the month modal is open can leave “completed but unscheduled” goals (month undefined) that the summary omits.",
-    "handleMonthConfirm builds the notification message by reading from the pre-update 'cards' closure, which can be stale if state changes before confirm.",
-    "handleMonthCancel restores completed=false but does not explicitly clear month; inconsistent stored data could leave an incomplete goal with a month value.",
-    "Yearly summary 100% detection checks all months; if multiple months reach 100% on a single change, the modal will effectively celebrate the last processed month.",
-    "YearlySummaryTable’s completion-detection effect depends only on checkedState (not cards); changes to cards while viewing summary can desync transition detection.",
-    "MonthlyCompletionCelebrationModal types countdownTimerRef as NodeJS.Timeout; some TS DOM setups can conflict with browser timeout typings.",
-    "Uploading a photo while camera mode is active does not stop the camera or exit camera mode, so the uploaded image may not become visible until the camera is stopped/closed.",
-    "useCelebrationCamera.waitForPreviewReady uses a timeout-based event cleanup that is not explicitly cancelled on early resolve (minor event-listener lifecycle risk).",
-    "Duplicate global CSS entrypoints exist (frontend/index.css and frontend/src/index.css); only src/index.css is imported, but duplication adds maintenance ambiguity."
+    "Cards/goals are loaded from localStorage via JSON.parse without schema/version validation; malformed stored data can cause runtime/type issues.",
+    "Completing a goal sets completed=true before month confirmation; reloading while the month modal is open can leave “completed but unscheduled” goals (month undefined) that the summary omits.",
+    "Month-cancel restores completed=false but does not clear month, which could leave inconsistent data if a month value already existed (e.g., corrupted or externally edited storage).",
+    "The month-confirm notification message reads goal text from a potentially stale 'cards' closure rather than the state used in the updater, so the message can be incorrect if state changes before confirming.",
+    "Yearly summary 100% completion detection effect depends only on checkedState; changes to cards/goals while on the summary view may not correctly trigger (or may mis-trigger) celebrations until a checkbox is toggled.",
+    "If multiple months become 100% complete on the same interaction, the celebration modal can effectively end up celebrating whichever month is processed last in the loop.",
+    "MonthlyCompletionCelebrationModal accepts month as a string and casts to Month when saving; invalid/empty values could produce incorrect localStorage keys if the modal were ever opened with a bad month value.",
+    "Monthly memories are stored as base64 data URLs in localStorage; large images can exceed storage limits and fail (errors are only logged).",
+    "Countdown timer ref is typed as NodeJS.Timeout in a browser component; depending on TS lib settings this can cause typing friction (browser setTimeout typically returns a number).",
+    "There are two global CSS files (frontend/src/index.css and frontend/index.css) with overlapping theme variables, which can confuse maintenance and risk inconsistent styling if both are used."
   ],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Portrait selfie photo of a smiling woman with soft sparkle/bokeh overlay and large beige outlined text reading “I crushed my monthly goals!” near the bottom (celebration-default-selfieGirl.dim_696x609.png)",
-  "generatedImages": [
-    {
-      "filename": "celebration-default-selfieGirl.dim_696x609.png",
-      "description": "Portrait selfie photo of a smiling woman with soft sparkle/bokeh overlay and large beige outlined text reading “I crushed my monthly goals!” near the bottom",
-      "targetWidth": 696,
-      "targetHeight": 609
-    }
-  ],
   "gameProjectType": "none",
   "projectName": "Goals Dashboard",
   "clarification_mode": "instant",

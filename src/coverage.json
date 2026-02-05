@@ -1,18 +1,18 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T01:18:28.943Z",
+  "generatedAt": "2026-02-05T04:55:03.271Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
-        "id": "REQ-4",
-        "summary": "In the “Time-Bound targets - 2026” 100% completion congrats modal (MonthlyCompletionCelebrationModal), change the default (when no user photo is selected) image shown in the media area below the text “Want to celebrate with a selfie?” to the user-provided uploaded image (selfieGirl.jpg), served as a static asset from the frontend.",
+        "id": "REQ-1",
+        "summary": "In `frontend/src/components/MonthlyCompletionCelebrationModal.tsx`, when a selfie has been captured and the composited photo is being displayed (i.e., after capture completes and the static preview is shown), replace the existing primary action button labeled \"Take Selfie & Share\" with two buttons labeled \"Save to Memories\" and \"Retake\".",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
@@ -22,16 +22,38 @@
         ]
       },
       {
-        "id": "REQ-5",
-        "summary": "Add the new default image file to the static assets folder at frontend/public/assets/generated and update the default-image reference in frontend/src/components/MonthlyCompletionCelebrationModal.tsx to use this new filename.",
+        "id": "REQ-2",
+        "summary": "Change the selfie capture flow in `frontend/src/components/MonthlyCompletionCelebrationModal.tsx` so that capturing a selfie does NOT automatically save the image to monthly memories; instead, saving to localStorage via `saveMonthlyMemory(month as Month, compositedDataUrl)` and invoking `onMemorySaved(month as Month)` must happen only when the user clicks the new \"Save to Memories\" button.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/assets/generated/celebration-default-selfieGirl.dim_696x609.png",
           "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
         ],
         "matchedFiles": [
-          "frontend/public/assets/generated/celebration-default-selfieGirl.dim_696x609.png",
           "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Implement the \"Retake\" button behavior in `frontend/src/components/MonthlyCompletionCelebrationModal.tsx`: when clicked from the selfie preview state, return the modal to camera mode to allow capturing a new selfie (clearing the current preview as needed and re-running the existing camera start + countdown flow).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/MonthlyCompletionCelebrationModal.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "When the user clicks \"Save to Memories\" in the congrats modal, show a centered pop-up notification using the existing `frontend/src/components/CenteredNotification.tsx` component with the exact English message \"Successfully saved! 📸\" and auto-dismiss it after 5 seconds (5000ms).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
+          "frontend/src/components/CenteredNotification.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
+          "frontend/src/components/CenteredNotification.tsx"
         ]
       }
     ]
@@ -41,7 +63,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/assets/generated/celebration-default-selfieGirl.dim_696x609.png",
+    "frontend/src/components/CenteredNotification.tsx",
     "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
     "project_state.json",
     "scratch/component-selection.json",

@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ArrowLeft } from 'lucide-react';
 import { MONTHS, type Month } from '@/lib/months';
 import MonthlyProgressDonut from './MonthlyProgressDonut';
 import MonthlyCompletionCelebrationModal from './MonthlyCompletionCelebrationModal';
+import MonthlyMemoryShareActions from './MonthlyMemoryShareActions';
+import { getAllMonthlyMemories } from '@/lib/monthlyMemoryStorage';
 
 interface Goal {
   id: string;
@@ -25,9 +28,10 @@ interface GoalCard {
 interface YearlySummaryTableProps {
   cards: GoalCard[];
   onBackToDashboard: () => void;
+  onUploadSaveSuccess?: () => void;
 }
 
-export default function YearlySummaryTable({ cards, onBackToDashboard }: YearlySummaryTableProps) {
+export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadSaveSuccess }: YearlySummaryTableProps) {
   // Local state for checkbox toggles (UI-only, not persisted)
   const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
   
@@ -37,6 +41,19 @@ export default function YearlySummaryTable({ cards, onBackToDashboard }: YearlyS
   
   // Track previous completion status for each month to detect transitions
   const previousCompletionRef = useRef<Partial<Record<Month, boolean>>>({});
+
+  // Monthly memories state
+  const [monthlyMemories, setMonthlyMemories] = useState<Map<Month, string>>(new Map());
+
+  // Load monthly memories on mount
+  useEffect(() => {
+    setMonthlyMemories(getAllMonthlyMemories());
+  }, []);
+
+  // Callback to refresh monthly memories when a new one is saved
+  const handleMemorySaved = () => {
+    setMonthlyMemories(getAllMonthlyMemories());
+  };
 
   // Build a map of category -> month -> goals with cardId
   const categoryMonthGoals = new Map<string, Map<Month, Array<Goal & { cardId: string }>>>();
@@ -113,6 +130,12 @@ export default function YearlySummaryTable({ cards, onBackToDashboard }: YearlyS
     // Update the ref for next comparison
     previousCompletionRef.current = currentCompletion;
   }, [checkedState]); // Re-run when checkbox state changes
+
+  // Generate rotation angles for Polaroid effect (alternating slight rotations)
+  const getRotationClass = (index: number): string => {
+    const rotations = ['polaroid-rotate-left', 'polaroid-rotate-right', 'polaroid-rotate-left-alt', 'polaroid-rotate-right-alt'];
+    return rotations[index % rotations.length];
+  };
 
   return (
     <div className="space-y-6">
@@ -291,6 +314,67 @@ export default function YearlySummaryTable({ cards, onBackToDashboard }: YearlyS
                 );
               })}
             </tr>
+
+            {/* Monthly Memory Row */}
+            <tr className="monthly-memory-row">
+              <td className="border border-gray-300 px-4 py-3 font-lora-italic font-semibold">
+                Monthly Memory
+              </td>
+              {MONTHS.map((month, index) => {
+                const memoryImage = monthlyMemories.get(month);
+                const stats = calculateMonthStatistics(month);
+                const shouldShowThumbnail = memoryImage && stats.isComplete;
+                
+                return (
+                  <td
+                    key={month}
+                    className="border border-gray-300 px-3 py-4"
+                  >
+                    {shouldShowThumbnail && (
+                      <div className="monthly-memory-cell-wrapper">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button
+                              className="polaroid-container cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                              aria-label={`View ${month} Memory`}
+                            >
+                              <div className={`polaroid-frame ${getRotationClass(index)}`}>
+                                <img
+                                  src={memoryImage}
+                                  alt={`${month} memory thumbnail`}
+                                  className="polaroid-image"
+                                />
+                              </div>
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 overflow-hidden">
+                            <DialogTitle className="sr-only">{month} Memory</DialogTitle>
+                            <div className="relative w-full h-full flex flex-col items-center justify-center bg-black/90">
+                              {/* Share button header */}
+                              <div className="absolute top-4 right-4 z-10">
+                                <MonthlyMemoryShareActions
+                                  imageDataUrl={memoryImage}
+                                  month={month}
+                                />
+                              </div>
+                              
+                              {/* Image display */}
+                              <div className="flex items-center justify-center p-6 w-full h-full">
+                                <img
+                                  src={memoryImage}
+                                  alt={`${month} memory`}
+                                  className="max-w-full max-h-[85vh] w-auto h-auto object-contain"
+                                />
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
           </tbody>
         </table>
       </div>
@@ -300,6 +384,8 @@ export default function YearlySummaryTable({ cards, onBackToDashboard }: YearlyS
         open={celebrationModalOpen}
         onOpenChange={setCelebrationModalOpen}
         month={celebratingMonth || ''}
+        onMemorySaved={handleMemorySaved}
+        onUploadSaveSuccess={onUploadSaveSuccess}
       />
     </div>
   );

@@ -1,30 +1,48 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T01:18:28.915Z",
-  "summary": "DEFAULT_CELEBRATION_IMAGE was updated to point at the new static asset path, but the required new image file itself is not shown as added in the diff. The modal component also appears to include additional cleanup/logic changes beyond the requested default-image swap.",
+  "generatedAt": "2026-02-05T04:55:03.253Z",
+  "summary": "The diff updates `CenteredNotification` to support configurable auto-dismiss timing and high z-index layering, and begins wiring notification state/imports in `MonthlyCompletionCelebrationModal`. However, due to the truncation and lack of visible UI/action-handler changes in the modal, the core requested button replacement, deferred saving behavior, retake behavior, and the exact 5s success notification cannot be confirmed as implemented from the provided diff summary.",
   "missing_requirements": [
     {
-      "id": "REQ-5",
-      "requirement": "Add the new default image file to frontend/public/assets/generated with the exact filename celebration-default-selfieGirl.dim_696x609.png.",
-      "reason": "The diff summary shows no added files, so there is no evidence the new static asset was added under frontend/public/assets/generated.",
+      "id": "REQ-1",
+      "requirement": "In `MonthlyCompletionCelebrationModal.tsx`, replace the post-capture \"Take Selfie & Share\" button with two buttons labeled \"Save to Memories\" and \"Retake\" when the static composited selfie preview is shown.",
+      "reason": "The diff snippet for `MonthlyCompletionCelebrationModal.tsx` is truncated before the render/action-button section; there is no evidence in the provided excerpt that the existing button is removed and replaced with the two new buttons with the exact labels.",
       "evidence": [
-        "File diff summary: \"Added: 0\" (no new files)"
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx (truncated)"
       ]
-    }
-  ],
-  "hallucinated_features": [
+    },
     {
-      "description": "Additional modal logic changes unrelated to swapping the default image (e.g., object URL detection/revocation and expanded cleanup/reset behavior on close/unmount).",
-      "reason": "BuildRequest only asked to change the default image reference and add the asset file; it explicitly listed non-goals around changing the selfie/camera/upload flows, and these logic changes go beyond a simple asset swap.",
+      "id": "REQ-2",
+      "requirement": "Change the selfie capture flow so capturing a selfie does NOT auto-save to monthly memories; saving via `saveMonthlyMemory(...)` and calling `onMemorySaved(...)` happens only when clicking \"Save to Memories\".",
+      "reason": "While `saveMonthlyMemory` is imported, the provided truncated excerpt does not show whether saving was removed from the capture completion path and moved exclusively into a \"Save to Memories\" click handler.",
       "evidence": [
-        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx (adds isObjectURL helper, URL.revokeObjectURL cleanup effects, expanded modal-close reset logic)"
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Implement \"Retake\" so that clicking it from preview returns to camera mode and re-runs the existing camera start + countdown flow, clearing the previous preview.",
+      "reason": "The provided diff excerpt does not include any \"Retake\" button, handler, or state-reset logic that explicitly switches from preview back to live camera and restarts the countdown-driven capture experience.",
+      "evidence": [
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "On clicking \"Save to Memories\", show a centered `CenteredNotification` with exact message \"Successfully saved! 📸\" and auto-dismiss after 5000ms, appearing above the modal.",
+      "reason": "`CenteredNotification` was updated to support `duration` and has a high z-index, and the modal introduces `showSaveNotification` state/import. But the excerpt does not show the notification being rendered with the exact message text nor that it is triggered specifically on \"Save to Memories\" with `duration={5000}`.",
+      "evidence": [
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx (truncated)",
+        "frontend/src/components/CenteredNotification.tsx"
       ]
     }
   ],
-  "confidence": 0.72,
+  "hallucinated_features": [],
+  "confidence": 0.62,
   "changed_files": [
     "frontend-file-summaries.txt",
+    "frontend/src/components/CenteredNotification.tsx",
     "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
     "project_state.json"
   ]
