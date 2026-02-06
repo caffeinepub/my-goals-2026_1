@@ -313,9 +313,42 @@
 
     .media-placeholder {
         @apply w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50;
+        border: 2px dashed oklch(var(--muted-foreground) / 0.3);
+        border-radius: 0.5rem;
     }
 
     .media-placeholder-content {
         @apply flex flex-col items-center justify-center text-center;
+    }
+
+    /* Memory placeholder button for "Maybe Later" state in table cells - now interactive */
+    .memory-placeholder-button {
+        @apply flex items-center justify-center w-16 h-16 rounded-md cursor-pointer;
+        @apply transition-all duration-200 ease-in-out;
+        border: 2px dashed oklch(var(--muted-foreground) / 0.25);
+        background-color: oklch(var(--background));
+    }
+
+    .memory-placeholder-button:hover {
+        border-color: oklch(var(--muted-foreground) / 0.4);
+        background-color: oklch(var(--muted) / 0.3);
+    }
+
+    .memory-placeholder-button:focus-visible {
+        @apply outline-none ring-2 ring-offset-2;
+        ring-color: oklch(var(--ring));
+    }
+
+    .memory-placeholder-button:active {
+        transform: scale(0.95);
+    }
+
+    /* Goal month tooltip styling */
+    .goal-month-tooltip {
+        @apply bg-popover text-popover-foreground border border-border shadow-md;
+        @apply px-3 py-1.5 rounded-md;
+        @apply font-lora-italic;
+        pointer-events: none;
+        z-index: 50;
     }
 }

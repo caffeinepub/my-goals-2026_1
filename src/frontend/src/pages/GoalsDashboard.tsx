@@ -6,6 +6,7 @@ import { Trash2, Plus } from 'lucide-react';
 import MonthSelectionModal from '@/components/MonthSelectionModal';
 import CenteredNotification from '@/components/CenteredNotification';
 import YearlySummaryTable from '@/components/YearlySummaryTable';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Month } from '@/lib/months';
 
 interface Goal {
@@ -423,120 +424,140 @@ export default function GoalsDashboard() {
 
       {/* Cards Container */}
       <main className="p-6">
-        <div
-          className={`flex gap-4 ${
-            shouldEnableScroll ? 'overflow-x-auto' : 'overflow-x-hidden'
-          }`}
-          style={{ flexWrap: 'nowrap' }}
-        >
-          {cards.map((card) => (
-            <div
-              key={card.id}
-              className="flex-shrink-0 rounded-lg shadow-md"
-              style={{
-                width: '280px',
-                backgroundColor: 'white',
-                border: '1px solid oklch(0.9 0 0)',
-              }}
-            >
-              {/* Card Header */}
+        {/* Instructional Text */}
+        <p className="text-sm text-muted-foreground mb-4 font-lora-italic">
+          Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!
+        </p>
+
+        <TooltipProvider delayDuration={300}>
+          <div
+            className={`flex gap-4 ${
+              shouldEnableScroll ? 'overflow-x-auto' : 'overflow-x-hidden'
+            }`}
+            style={{ flexWrap: 'nowrap' }}
+          >
+            {cards.map((card) => (
               <div
-                className="rounded-t-lg px-4 py-3 text-center font-lora-italic font-semibold flex items-center justify-center gap-2"
+                key={card.id}
+                className="flex-shrink-0 rounded-lg shadow-md"
                 style={{
-                  backgroundColor: card.color,
-                  color: card.textColor,
+                  width: '280px',
+                  backgroundColor: 'white',
+                  border: '1px solid oklch(0.9 0 0)',
                 }}
               >
-                <span className="mr-1">{card.emoji}</span>
-                <span>{card.title}</span>
-              </div>
+                {/* Card Header */}
+                <div
+                  className="rounded-t-lg px-4 py-3 text-center font-lora-italic font-semibold flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: card.color,
+                    color: card.textColor,
+                  }}
+                >
+                  <span className="mr-1">{card.emoji}</span>
+                  <span>{card.title}</span>
+                </div>
 
-              {/* Card Body */}
-              <div className="p-4">
-                {card.goals.map((goal, index) => {
-                  const isLastGoal = index === card.goals.length - 1;
-                  return (
-                    <div key={goal.id}>
-                      <div className="group flex items-start gap-3 py-3 focus-within:bg-muted/30 hover:bg-muted/30 rounded transition-colors relative">
-                        <Checkbox
-                          id={goal.id}
-                          checked={goal.completed}
-                          onCheckedChange={() => toggleGoal(card.id, goal.id)}
-                          className="mt-1 flex-shrink-0"
-                        />
-                        {editingGoal?.cardId === card.id && editingGoal?.goalId === goal.id ? (
-                          <Input
-                            ref={inputRef}
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            onBlur={saveEdit}
-                            onKeyDown={handleKeyDown}
-                            className="flex-1 font-lora-italic text-sm leading-relaxed h-auto py-1 px-2"
-                            style={{ color: 'oklch(0.2 0 0)' }}
+                {/* Card Body */}
+                <div className="p-4">
+                  {card.goals.map((goal, index) => {
+                    const isLastGoal = index === card.goals.length - 1;
+                    const isEditing = editingGoal?.cardId === card.id && editingGoal?.goalId === goal.id;
+                    const hasMonth = goal.month !== undefined;
+                    
+                    return (
+                      <div key={goal.id}>
+                        <div className="group flex items-start gap-3 py-3 focus-within:bg-muted/30 hover:bg-muted/30 rounded transition-colors relative">
+                          <Checkbox
+                            id={goal.id}
+                            checked={goal.completed}
+                            onCheckedChange={() => toggleGoal(card.id, goal.id)}
+                            className="mt-1 flex-shrink-0"
                           />
-                        ) : (
-                          <label
-                            htmlFor={goal.id}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              startEditing(card.id, goal.id, goal.text);
-                            }}
-                            className={`flex-1 cursor-pointer font-lora-italic text-sm leading-relaxed pr-16 ${
-                              goal.completed ? 'opacity-60' : ''
-                            }`}
-                            style={{ color: 'oklch(0.2 0 0)' }}
-                          >
-                            {goal.text}
-                          </label>
-                        )}
-                        
-                        {/* Action buttons - always reserve space, show on hover/focus-within */}
-                        <div className="absolute right-0 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
-                          {isLastGoal && (
+                          {isEditing ? (
+                            <Input
+                              ref={inputRef}
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                              onBlur={saveEdit}
+                              onKeyDown={handleKeyDown}
+                              className="flex-1 font-lora-italic text-sm leading-relaxed h-auto py-1 px-2"
+                              style={{ color: 'oklch(0.2 0 0)' }}
+                            />
+                          ) : (
+                            <Tooltip open={hasMonth && !isEditing ? undefined : false}>
+                              <TooltipTrigger asChild>
+                                <label
+                                  htmlFor={goal.id}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    startEditing(card.id, goal.id, goal.text);
+                                  }}
+                                  className={`flex-1 cursor-pointer font-lora-italic text-sm leading-relaxed pr-16 ${
+                                    goal.completed ? 'opacity-60' : ''
+                                  }`}
+                                  style={{ color: 'oklch(0.2 0 0)' }}
+                                >
+                                  {goal.text}
+                                </label>
+                              </TooltipTrigger>
+                              {hasMonth && (
+                                <TooltipContent 
+                                  side="top" 
+                                  className="goal-month-tooltip"
+                                  sideOffset={5}
+                                >
+                                  <p className="text-xs">Goal added for the month {goal.month}</p>
+                                </TooltipContent>
+                              )}
+                            </Tooltip>
+                          )}
+                          
+                          {/* Action buttons - always reserve space, show on hover/focus-within */}
+                          <div className="absolute right-0 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+                            {isLastGoal && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => addGoal(card.id)}
+                                aria-label="Add new goal"
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7"
-                              onClick={() => addGoal(card.id)}
-                              aria-label="Add new goal"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              onClick={() => deleteGoal(card.id, goal.id)}
+                              aria-label="Delete goal"
                             >
-                              <Plus className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => deleteGoal(card.id, goal.id)}
-                            aria-label="Delete goal"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          </div>
                         </div>
+                        {index < card.goals.length - 1 && (
+                          <div className="border-b border-muted" />
+                        )}
                       </div>
-                      {index < card.goals.length - 1 && (
-                        <div
-                          className="border-t"
-                          style={{ borderStyle: 'dashed', borderColor: 'oklch(0.85 0 0)' }}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </TooltipProvider>
 
-        {/* See goals per month button - below cards */}
-        <div className="mt-8 flex justify-center">
+        {/* View Summary Button */}
+        <div className="mt-8 text-center">
           <Button
+            onClick={() => setView('summary')}
             variant="default"
             size="lg"
             className="font-lora-italic"
-            onClick={() => setView('summary')}
           >
-            See goals per month
+            View Yearly Summary
           </Button>
         </div>
       </main>

@@ -20,9 +20,11 @@ interface MonthlyCompletionCelebrationModalProps {
   month: string;
   onMemorySaved?: (month: Month) => void;
   onUploadSaveSuccess?: () => void;
+  onMaybeLater?: (month: Month) => void;
 }
 
 const DEFAULT_CELEBRATION_IMAGE = '/assets/generated/celebration-default-user-provided.dim_696x609.png';
+const CAPTURE_TIMEOUT_MS = 10000; // 10 seconds max for capture attempts
 
 export default function MonthlyCompletionCelebrationModal({
   open,
@@ -30,6 +32,7 @@ export default function MonthlyCompletionCelebrationModal({
   month,
   onMemorySaved,
   onUploadSaveSuccess,
+  onMaybeLater,
 }: MonthlyCompletionCelebrationModalProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -39,9 +42,19 @@ export default function MonthlyCompletionCelebrationModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSelfieCapture, setIsSelfieCapture] = useState(false);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
+  const [isCapturingPhoto, setIsCapturingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isCapturingRef = useRef(false);
+  const retryIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const captureTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingCloseRef = useRef(false); // Track if modal should close after notification
+  
+  // Refs that stay in sync with state for async guards
+  const openRef = useRef(open);
+  const isCameraModeRef = useRef(isCameraMode);
+  const flowRunIdRef = useRef(0); // Monotonically increasing token for each capture flow
+  const activeFlowIdRef = useRef<number | null>(null); // Current active flow ID
 
   const {
     isActive,
@@ -60,6 +73,22 @@ export default function MonthlyCompletionCelebrationModal({
     quality: 0.95,
   });
 
+  // Keep refs in sync with state
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+
+  useEffect(() => {
+    isCameraModeRef.current = isCameraMode;
+  }, [isCameraMode]);
+
+  // Clear pending close flag when modal is manually closed
+  useEffect(() => {
+    if (!open) {
+      pendingCloseRef.current = false;
+    }
+  }, [open]);
+
   // Helper to check if a URL is an object URL (blob:)
   const isObjectURL = (url: string | null): boolean => {
     return url !== null && url.startsWith('blob:');
@@ -74,19 +103,51 @@ export default function MonthlyCompletionCelebrationModal({
     };
   }, [selectedImage]);
 
+  // Centralized teardown function for camera flow
+  const teardownCaptureFlow = async () => {
+    console.log('[Modal] Tearing down capture flow, activeFlowId was:', activeFlowIdRef.current);
+    
+    // Clear all timers
+    if (countdownTimerRef.current) {
+      clearTimeout(countdownTimerRef.current);
+      countdownTimerRef.current = null;
+    }
+    if (retryIntervalRef.current) {
+      clearInterval(retryIntervalRef.current);
+      retryIntervalRef.current = null;
+    }
+    if (captureTimeoutRef.current) {
+      clearTimeout(captureTimeoutRef.current);
+      captureTimeoutRef.current = null;
+    }
+
+    // Reset capture flags and state
+    isCapturingRef.current = false;
+    setIsCapturingPhoto(false);
+    setCountdown(null);
+    setIsStartingCamera(false);
+    setIsProcessing(false);
+
+    // Stop camera if active
+    if (isActive) {
+      try {
+        await stopCamera();
+        console.log('[Modal] Camera stopped during teardown');
+      } catch (err) {
+        console.error('[Modal] Error stopping camera during teardown:', err);
+      }
+    }
+    
+    // Deactivate flow AFTER teardown completes
+    activeFlowIdRef.current = null;
+    console.log('[Modal] Teardown complete, activeFlowId now:', activeFlowIdRef.current);
+  };
+
   // Clean up camera and reset state when modal closes
   useEffect(() => {
     if (!open) {
-      // Stop camera if active
-      if (isActive) {
-        stopCamera();
-      }
-      
-      // Clear countdown timer
-      if (countdownTimerRef.current) {
-        clearTimeout(countdownTimerRef.current);
-        countdownTimerRef.current = null;
-      }
+      // Teardown capture flow
+      teardownCaptureFlow();
 
       // Clean up image URL only if it's an object URL
       if (isObjectURL(selectedImage)) {
@@ -96,13 +157,11 @@ export default function MonthlyCompletionCelebrationModal({
 
       // Reset states
       setIsCameraMode(false);
-      setCountdown(null);
       setCameraError(null);
       setIsStartingCamera(false);
       setIsProcessing(false);
       setIsSelfieCapture(false);
       setShowSaveNotification(false);
-      isCapturingRef.current = false;
 
       // Reset file input
       if (fileInputRef.current) {
@@ -117,26 +176,39 @@ export default function MonthlyCompletionCelebrationModal({
       if (countdownTimerRef.current) {
         clearTimeout(countdownTimerRef.current);
       }
+      if (retryIntervalRef.current) {
+        clearInterval(retryIntervalRef.current);
+      }
+      if (captureTimeoutRef.current) {
+        clearTimeout(captureTimeoutRef.current);
+      }
     };
   }, []);
 
   const startCountdown = () => {
+    console.log('[Modal] Starting countdown');
     const sequence = [5, 4, 3, 2, 1, 0];
     let index = 0;
 
     const runCountdown = () => {
       if (index < sequence.length) {
         setCountdown(sequence[index]);
+        console.log('[Modal] Countdown:', sequence[index]);
         index++;
         
-        // If we just showed 0, capture immediately after showing it briefly
+        // If we just showed 0, wait briefly then clear countdown and trigger capture
         if (sequence[index - 1] === 0) {
-          // Show 0 for 800ms, then capture
+          // Show 0 for 300ms, then add a small delay before capture
           countdownTimerRef.current = setTimeout(() => {
-            // Clear countdown display and trigger capture
+            // Clear countdown display
             setCountdown(null);
-            handleCapture();
-          }, 800);
+            console.log('[Modal] Countdown complete, triggering capture');
+            
+            // Add a small delay (150ms) before first capture attempt
+            setTimeout(() => {
+              handleCapture();
+            }, 150);
+          }, 300);
         } else {
           countdownTimerRef.current = setTimeout(runCountdown, 1000);
         }
@@ -148,8 +220,10 @@ export default function MonthlyCompletionCelebrationModal({
 
   const handleCapture = async () => {
     // Prevent double capture
-    if (isCapturingRef.current) return;
-    isCapturingRef.current = true;
+    if (isCapturingRef.current) {
+      console.warn('[Modal] Capture already in progress, skipping');
+      return;
+    }
     
     // Clear any pending countdown timers to prevent re-triggers
     if (countdownTimerRef.current) {
@@ -157,69 +231,227 @@ export default function MonthlyCompletionCelebrationModal({
       countdownTimerRef.current = null;
     }
 
-    try {
-      // Capture the photo first (while camera is still active)
-      const photoFile = await capturePhoto();
-      
-      // Stop camera immediately after capture (1ms delay)
-      setTimeout(async () => {
-        try {
-          await stopCamera();
-        } catch (stopError) {
-          console.error('Failed to stop camera:', stopError);
-        }
-      }, 1);
-      
-      // Now process the captured photo
-      setIsProcessing(true);
-      
-      if (photoFile) {
-        // Convert photo to data URL
-        const selfieDataUrl = await fileToDataUrl(photoFile);
-        
-        // Create composited image with Polaroid frame and overlay
-        const compositedDataUrl = await createCelebrationComposite({
-          selfieDataUrl,
-        });
-        
-        // Revoke previous URL if it's an object URL
-        if (isObjectURL(selectedImage)) {
-          URL.revokeObjectURL(selectedImage!);
-        }
-        
-        // Set the composited image for display (but don't save yet)
-        setSelectedImage(compositedDataUrl);
-        setIsCameraMode(false);
-        setIsSelfieCapture(true);
-        setCountdown(null);
-        setCameraError(null);
+    // Generate a new flow run ID for this capture attempt
+    const currentFlowId = ++flowRunIdRef.current;
+    
+    // CRITICAL FIX: Set this as the active flow immediately
+    activeFlowIdRef.current = currentFlowId;
+    console.log('[Modal] Starting capture flow #', currentFlowId, ', set as active flow');
 
-        // DO NOT auto-save - wait for user to click "Save to Memories"
-      } else {
-        // Capture failed but no exception thrown
-        setCameraError('Failed to capture photo. Please try again.');
-        setIsCameraMode(false);
+    // Mark capture as in progress
+    isCapturingRef.current = true;
+
+    // Show capturing state
+    setIsCapturingPhoto(true);
+
+    // Set capture timeout - guard with flow ID
+    captureTimeoutRef.current = setTimeout(async () => {
+      // Guard: only execute if this is still the active flow
+      if (activeFlowIdRef.current !== currentFlowId) {
+        console.log('[Modal] Timeout fired for flow #', currentFlowId, 'but active flow is #', activeFlowIdRef.current, ', ignoring');
+        return;
       }
-    } catch (error) {
-      console.error('Failed to capture and composite photo:', error);
-      setCameraError('Failed to process photo. Please try again.');
+      
+      // Guard: check refs for current state
+      if (!openRef.current || !isCameraModeRef.current) {
+        console.log('[Modal] Timeout fired but modal closed or camera mode exited, ignoring');
+        return;
+      }
+      
+      console.log('[Modal] Capture timeout reached after', CAPTURE_TIMEOUT_MS, 'ms for flow #', currentFlowId, ', stopping flow');
+      
+      // Clear retry interval
+      if (retryIntervalRef.current) {
+        clearInterval(retryIntervalRef.current);
+        retryIntervalRef.current = null;
+      }
+
+      // Stop camera and exit camera mode
+      await teardownCaptureFlow();
       setIsCameraMode(false);
       
-      // Ensure camera is stopped on error
-      try {
-        await stopCamera();
-      } catch (stopError) {
-        console.error('Failed to stop camera:', stopError);
+      // Show error message
+      setCameraError('Photo capture timed out. Please try again or use the "Upload Photo" button below.');
+    }, CAPTURE_TIMEOUT_MS);
+
+    // Start silent retry loop
+    const attemptCapture = async (): Promise<boolean> => {
+      // Guard: check if this flow is still active
+      if (activeFlowIdRef.current !== currentFlowId) {
+        console.log('[Modal] Capture attempt for flow #', currentFlowId, 'but active flow is #', activeFlowIdRef.current, ', stopping');
+        return false;
       }
-    } finally {
-      setIsProcessing(false);
-      isCapturingRef.current = false;
+
+      // Guard: check refs for current state
+      if (!isCameraModeRef.current || !openRef.current) {
+        console.log('[Modal] Capture flow cancelled (isCameraModeRef:', isCameraModeRef.current, 'openRef:', openRef.current, '), stopping retries');
+        return false;
+      }
+
+      const video = videoRef.current;
+      if (!video) {
+        console.warn('[Modal] Video element not available, will retry...');
+        return false;
+      }
+
+      // Check if video has dimensions (hard requirement)
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        console.warn('[Modal] Video dimensions not ready (', video.videoWidth, 'x', video.videoHeight, '), will retry...');
+        return false;
+      }
+
+      console.log('[Modal] Attempting capture for flow #', currentFlowId, '(video dimensions:', video.videoWidth, 'x', video.videoHeight, ')...');
+      
+      try {
+        const photoFile = await capturePhoto();
+        
+        if (!photoFile) {
+          console.warn('[Modal] Capture returned null (transient), will retry...');
+          return false;
+        }
+
+        console.log('[Modal] Capture successful for flow #', currentFlowId, '! File:', {
+          size: photoFile.size,
+          type: photoFile.type,
+          name: photoFile.name,
+        });
+
+        // Success! Clear all timers immediately
+        if (retryIntervalRef.current) {
+          clearInterval(retryIntervalRef.current);
+          retryIntervalRef.current = null;
+        }
+        if (captureTimeoutRef.current) {
+          clearTimeout(captureTimeoutRef.current);
+          captureTimeoutRef.current = null;
+          console.log('[Modal] Cleared timeout timer on successful capture');
+        }
+        
+        // Hide capturing state immediately
+        setIsCapturingPhoto(false);
+        isCapturingRef.current = false;
+        
+        // Stop camera immediately after successful capture
+        setTimeout(async () => {
+          try {
+            await stopCamera();
+            console.log('[Modal] Camera stopped successfully');
+          } catch (stopError) {
+            console.error('[Modal] Failed to stop camera:', stopError);
+          }
+        }, 1);
+        
+        // Now process the captured photo
+        setIsProcessing(true);
+        console.log('[Modal] Processing captured photo...');
+        
+        try {
+          // Convert photo to data URL
+          const selfieDataUrl = await fileToDataUrl(photoFile);
+          console.log('[Modal] Converted photo to data URL, length:', selfieDataUrl.length);
+          
+          // Attempt to create composited image with Polaroid frame and overlay
+          let finalImageUrl: string;
+          try {
+            console.log('[Modal] Attempting to create celebration composite...');
+            finalImageUrl = await createCelebrationComposite({
+              selfieDataUrl,
+            });
+            console.log('[Modal] Composite created successfully, length:', finalImageUrl.length);
+          } catch (compositeError) {
+            // Compositing failed - fall back to raw selfie
+            console.error('[Modal] Compositing failed, falling back to raw selfie:', compositeError);
+            finalImageUrl = selfieDataUrl;
+          }
+          
+          // Revoke previous URL if it's an object URL
+          if (isObjectURL(selectedImage)) {
+            URL.revokeObjectURL(selectedImage!);
+          }
+          
+          // Set the final image for display (composited or raw)
+          setSelectedImage(finalImageUrl);
+          setIsCameraMode(false);
+          setIsSelfieCapture(true);
+          setCameraError(null);
+
+          console.log('[Modal] Capture flow #', currentFlowId, 'completed successfully, showing preview');
+        } catch (processingError) {
+          console.error('[Modal] Failed to process photo:', processingError);
+          // Even if processing fails, we stop retrying
+          setIsCameraMode(false);
+          setCameraError('Failed to process photo. Please try again.');
+        } finally {
+          setIsProcessing(false);
+          activeFlowIdRef.current = null;
+          console.log('[Modal] Deactivated capture flow #', currentFlowId, 'after processing');
+        }
+
+        return true;
+      } catch (error) {
+        // Fatal error thrown by capturePhoto - stop retrying
+        console.error('[Modal] Fatal capture error (non-transient) for flow #', currentFlowId, ':', error);
+        
+        // Clear all timers
+        if (retryIntervalRef.current) {
+          clearInterval(retryIntervalRef.current);
+          retryIntervalRef.current = null;
+        }
+        if (captureTimeoutRef.current) {
+          clearTimeout(captureTimeoutRef.current);
+          captureTimeoutRef.current = null;
+        }
+        
+        // Teardown and show error
+        await teardownCaptureFlow();
+        setIsCameraMode(false);
+        
+        setCameraError(`Failed to capture photo: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again or use the "Upload Photo" button below.`);
+        
+        return false;
+      }
+    };
+
+    // Try first capture immediately
+    const success = await attemptCapture();
+    
+    if (!success && activeFlowIdRef.current === currentFlowId) {
+      // Start retry loop (500ms intervals) - only if flow is still active
+      console.log('[Modal] First capture attempt failed for flow #', currentFlowId, ', starting retry loop');
+      retryIntervalRef.current = setInterval(async () => {
+        // Guard: check if this flow is still active
+        if (activeFlowIdRef.current !== currentFlowId) {
+          console.log('[Modal] Retry interval for flow #', currentFlowId, 'but active flow is #', activeFlowIdRef.current, ', stopping');
+          if (retryIntervalRef.current) {
+            clearInterval(retryIntervalRef.current);
+            retryIntervalRef.current = null;
+          }
+          return;
+        }
+
+        const retrySuccess = await attemptCapture();
+        if (retrySuccess) {
+          if (retryIntervalRef.current) {
+            clearInterval(retryIntervalRef.current);
+            retryIntervalRef.current = null;
+          }
+        }
+      }, 500);
+    } else if (success) {
+      // Clear timeout if first attempt succeeded
+      if (captureTimeoutRef.current) {
+        clearTimeout(captureTimeoutRef.current);
+        captureTimeoutRef.current = null;
+        console.log('[Modal] Cleared timeout timer after immediate success');
+      }
     }
   };
 
   const handleSaveToMemories = () => {
     if (!selectedImage) return;
 
+    console.log('[Modal] Saving to memories');
+    
     // Save composited image to localStorage
     saveMonthlyMemory(month as Month, selectedImage);
     
@@ -228,11 +460,31 @@ export default function MonthlyCompletionCelebrationModal({
       onMemorySaved(month as Month);
     }
 
-    // Show success notification
+    // Show success notification and mark modal for pending close
     setShowSaveNotification(true);
+    pendingCloseRef.current = true;
+  };
+
+  const handleNotificationDismiss = () => {
+    setShowSaveNotification(false);
+    
+    // Close modal if it was pending close and still open
+    if (pendingCloseRef.current && openRef.current) {
+      console.log('[Modal] Notification dismissed, closing modal');
+      pendingCloseRef.current = false;
+      onOpenChange(false);
+    }
   };
 
   const handleRetake = async () => {
+    // Prevent starting new flow if one is active
+    if (activeFlowIdRef.current !== null || isCapturingRef.current) {
+      console.warn('[Modal] Capture flow already active, skipping retake');
+      return;
+    }
+
+    console.log('[Modal] Retaking photo');
+
     // Clear the current preview
     if (isObjectURL(selectedImage)) {
       URL.revokeObjectURL(selectedImage!);
@@ -240,50 +492,88 @@ export default function MonthlyCompletionCelebrationModal({
     setSelectedImage(null);
     setIsSelfieCapture(false);
     setCameraError(null);
+    
+    // Teardown any existing flow first
+    await teardownCaptureFlow();
 
     // Restart the camera flow
     await handleTakeSelfie();
   };
 
   const handleTakeSelfie = async () => {
-    // Clear any previous error
+    // Prevent overlapping flows
+    if (activeFlowIdRef.current !== null || isCapturingRef.current) {
+      console.warn('[Modal] Capture flow already active, skipping');
+      return;
+    }
+
+    console.log('[Modal] === Starting new selfie capture flow ===');
+
+    // Clear any previous error and teardown first
     setCameraError(null);
+    await teardownCaptureFlow();
+    
+    // Note: We do NOT set activeFlowIdRef here anymore.
+    // It will be set in handleCapture when the countdown completes.
+    
     setIsStartingCamera(true);
     isCapturingRef.current = false;
 
     // Switch to camera mode immediately (hide static image)
     setIsCameraMode(true);
 
+    console.log('[Modal] Starting camera...');
+
     // Check if camera is supported
     if (isSupported === false) {
+      console.error('[Modal] Camera not supported');
       setCameraError('Camera is not supported on this device or browser. Please use the "Upload Photo" button below to select a photo from your files.');
       setIsStartingCamera(false);
       setIsCameraMode(false);
+      console.log('[Modal] Camera not supported, exiting');
       return;
     }
 
     // Try to start camera
     const success = await startCamera();
+    console.log('[Modal] Camera start result:', success);
     
     if (success) {
       setCameraError(null);
       
-      // Wait for preview to be ready before starting countdown
+      console.log('[Modal] Camera started, waiting for preview readiness...');
+      
+      // Wait for preview to be fully ready before starting countdown
       const previewReady = await waitForPreviewReady();
       
       setIsStartingCamera(false);
       
+      console.log('[Modal] Preview ready result:', previewReady);
+      
       if (previewReady) {
-        // Start countdown only after preview is ready
-        startCountdown();
+        // Verify video element has non-zero dimensions
+        const video = videoRef.current;
+        if (video && video.videoWidth > 0 && video.videoHeight > 0) {
+          console.log('[Modal] Preview confirmed ready with dimensions:', video.videoWidth, 'x', video.videoHeight);
+          // Start countdown only after preview is confirmed ready
+          startCountdown();
+        } else {
+          // Preview dimensions not ready
+          console.error('[Modal] Preview dimensions not ready:', video?.videoWidth, 'x', video?.videoHeight);
+          setCameraError('Camera preview failed to load. Please try again or use the "Upload Photo" button below.');
+          setIsCameraMode(false);
+          await teardownCaptureFlow();
+        }
       } else {
         // Preview failed to become ready
+        console.error('[Modal] Preview failed to become ready');
         setCameraError('Camera preview failed to load. Please try again or use the "Upload Photo" button below.');
         setIsCameraMode(false);
-        await stopCamera();
+        await teardownCaptureFlow();
       }
     } else {
       // Camera failed - show error message based on error type
+      console.error('[Modal] Camera start failed, error:', error);
       if (error?.type === 'permission') {
         setCameraError('Camera permission was denied. Please allow camera access in your browser settings, or use the "Upload Photo" button below to select a photo from your files.');
       } else if (error?.type === 'not-found') {
@@ -295,6 +585,7 @@ export default function MonthlyCompletionCelebrationModal({
       }
       setIsCameraMode(false);
       setIsStartingCamera(false);
+      console.log('[Modal] Camera start failed, exiting');
     }
   };
 
@@ -305,6 +596,7 @@ export default function MonthlyCompletionCelebrationModal({
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      console.log('[Modal] Processing uploaded file:', file.name, file.size);
       setIsProcessing(true);
       
       try {
@@ -334,13 +626,15 @@ export default function MonthlyCompletionCelebrationModal({
           onMemorySaved(month as Month);
         }
 
+        console.log('[Modal] Upload processed and saved successfully');
+
         // Close modal and trigger upload success notification
         onOpenChange(false);
         if (onUploadSaveSuccess) {
           onUploadSaveSuccess();
         }
       } catch (error) {
-        console.error('Failed to process uploaded photo:', error);
+        console.error('[Modal] Failed to process uploaded photo:', error);
         setCameraError('Failed to process photo. Please try again.');
       } finally {
         setIsProcessing(false);
@@ -348,7 +642,31 @@ export default function MonthlyCompletionCelebrationModal({
     }
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    console.log('[Modal] Closing modal');
+    // Clear pending close flag
+    pendingCloseRef.current = false;
+    
+    // Clean up any active flows
+    await teardownCaptureFlow();
+    
+    onOpenChange(false);
+  };
+
+  const handleMaybeLater = async () => {
+    console.log('[Modal] Maybe later clicked');
+    // Clear pending close flag
+    pendingCloseRef.current = false;
+    
+    // Clean up any active flows
+    await teardownCaptureFlow();
+    
+    // Notify parent that "Maybe Later" was clicked
+    if (onMaybeLater) {
+      onMaybeLater(month as Month);
+    }
+    
+    // Close the modal
     onOpenChange(false);
   };
 
@@ -409,7 +727,7 @@ export default function MonthlyCompletionCelebrationModal({
                   <canvas ref={canvasRef} className="hidden" />
                   
                   {/* Loading overlay while camera is starting or preview is not ready */}
-                  {(isStartingCamera || !isPreviewReady) && countdown === null && (
+                  {(isStartingCamera || !isPreviewReady) && countdown === null && !isCapturingPhoto && (
                     <div className="camera-loading-overlay">
                       <div className="camera-loading-content">
                         <Loader2 className="h-12 w-12 animate-spin text-white mb-3" />
@@ -420,7 +738,19 @@ export default function MonthlyCompletionCelebrationModal({
                     </div>
                   )}
                   
-                  {/* Processing overlay after capture */}
+                  {/* Capturing overlay during retry attempts */}
+                  {isCapturingPhoto && !isProcessing && (
+                    <div className="camera-loading-overlay">
+                      <div className="camera-loading-content">
+                        <Loader2 className="h-12 w-12 animate-spin text-white mb-3" />
+                        <p className="text-white text-lg font-lora-italic">
+                          Capturing photo...
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Processing overlay after successful capture */}
                   {isProcessing && (
                     <div className="camera-loading-overlay">
                       <div className="camera-loading-content">
@@ -433,7 +763,7 @@ export default function MonthlyCompletionCelebrationModal({
                   )}
                   
                   {/* Countdown overlay - show immediately after camera starts */}
-                  {countdown !== null && !isProcessing && (
+                  {countdown !== null && !isProcessing && !isCapturingPhoto && (
                     <div className="countdown-overlay">
                       <div className="countdown-text">
                         {countdown}
@@ -509,7 +839,7 @@ export default function MonthlyCompletionCelebrationModal({
                 <Button
                   variant="default"
                   onClick={handleTakeSelfie}
-                  disabled={isStartingCamera || (isCameraMode && isActive) || isProcessing}
+                  disabled={isStartingCamera || activeFlowIdRef.current !== null || isProcessing || countdown !== null || isCapturingPhoto}
                   className="flex-1 h-12 text-base font-lora-italic bg-[oklch(0.577_0.245_27.325)] hover:bg-[oklch(0.52_0.23_27.325)] text-white disabled:opacity-50"
                 >
                   {isStartingCamera ? (
@@ -523,7 +853,7 @@ export default function MonthlyCompletionCelebrationModal({
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={handleClose}
+                  onClick={handleMaybeLater}
                   disabled={isProcessing}
                   className="flex-1 h-12 text-base font-lora-italic"
                 >
@@ -571,7 +901,7 @@ export default function MonthlyCompletionCelebrationModal({
       <CenteredNotification
         message="Successfully saved! 📸"
         visible={showSaveNotification}
-        onDismiss={() => setShowSaveNotification(false)}
+        onDismiss={handleNotificationDismiss}
         duration={5000}
       />
     </>

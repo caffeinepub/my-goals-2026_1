@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Camera } from 'lucide-react';
 import { MONTHS, type Month } from '@/lib/months';
 import MonthlyProgressDonut from './MonthlyProgressDonut';
 import MonthlyCompletionCelebrationModal from './MonthlyCompletionCelebrationModal';
@@ -45,6 +45,9 @@ export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadS
   // Monthly memories state
   const [monthlyMemories, setMonthlyMemories] = useState<Map<Month, string>>(new Map());
 
+  // Track which months have "Maybe Later" clicked (in-memory only)
+  const [maybeLaterMonths, setMaybeLaterMonths] = useState<Set<Month>>(new Set());
+
   // Load monthly memories on mount
   useEffect(() => {
     setMonthlyMemories(getAllMonthlyMemories());
@@ -53,6 +56,17 @@ export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadS
   // Callback to refresh monthly memories when a new one is saved
   const handleMemorySaved = () => {
     setMonthlyMemories(getAllMonthlyMemories());
+  };
+
+  // Callback when "Maybe Later" is clicked
+  const handleMaybeLater = (month: Month) => {
+    setMaybeLaterMonths((prev) => new Set(prev).add(month));
+  };
+
+  // Handler for clicking the placeholder to reopen modal
+  const handlePlaceholderClick = (month: Month) => {
+    setCelebratingMonth(month);
+    setCelebrationModalOpen(true);
   };
 
   // Build a map of category -> month -> goals with cardId
@@ -324,13 +338,14 @@ export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadS
                 const memoryImage = monthlyMemories.get(month);
                 const stats = calculateMonthStatistics(month);
                 const shouldShowThumbnail = memoryImage && stats.isComplete;
+                const shouldShowPlaceholder = !memoryImage && maybeLaterMonths.has(month);
                 
                 return (
                   <td
                     key={month}
                     className="border border-gray-300 px-3 py-4"
                   >
-                    {shouldShowThumbnail && (
+                    {shouldShowThumbnail ? (
                       <div className="monthly-memory-cell-wrapper">
                         <Dialog>
                           <DialogTrigger asChild>
@@ -370,7 +385,17 @@ export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadS
                           </DialogContent>
                         </Dialog>
                       </div>
-                    )}
+                    ) : shouldShowPlaceholder ? (
+                      <div className="monthly-memory-cell-wrapper">
+                        <button
+                          onClick={() => handlePlaceholderClick(month)}
+                          className="memory-placeholder-button"
+                          aria-label={`Add monthly memory for ${month}`}
+                        >
+                          <Camera className="h-8 w-8 text-muted-foreground/40" aria-hidden="true" />
+                        </button>
+                      </div>
+                    ) : null}
                   </td>
                 );
               })}
@@ -386,6 +411,7 @@ export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadS
         month={celebratingMonth || ''}
         onMemorySaved={handleMemorySaved}
         onUploadSaveSuccess={onUploadSaveSuccess}
+        onMaybeLater={handleMaybeLater}
       />
     </div>
   );

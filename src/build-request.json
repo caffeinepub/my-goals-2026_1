@@ -1,85 +1,34 @@
 {
   "kind": "build_request",
-  "title": "Update Congrats modal selfie-preview actions to Save to Memories + Retake with centered 5s notification",
+  "title": "Add instructional text to Lifetime Goals dashboard cards view",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "In `frontend/src/components/MonthlyCompletionCelebrationModal.tsx`, when a selfie has been captured and the composited photo is being displayed (i.e., after capture completes and the static preview is shown), replace the existing primary action button labeled \"Take Selfie & Share\" with two buttons labeled \"Save to Memories\" and \"Retake\".",
+      "text": "In the first “LIFETIME GOALS” dashboard view (the view that shows the horizontal scrollable goal-category cards), display a small instructional text above the cards that reads exactly: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\"",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "In the congrats modal,  after the taken photo is displayed inside the Congrats Modal , replace the 'Take Selfie & ‘share button with 2 new buttons:  'Save to Memories'  and 'Retake’."
+          "In the first  'LIFETIME GOALS' view (where are the cards), add a small instructional text : \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it! \""
         ]
       },
       "acceptanceCriteria": [
-        "After a selfie is captured and displayed in the modal, the UI shows a \"Save to Memories\" button and a \"Retake\" button.",
-        "After a selfie is captured and displayed in the modal, the \"Take Selfie & Share\" button is not shown."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Change the selfie capture flow in `frontend/src/components/MonthlyCompletionCelebrationModal.tsx` so that capturing a selfie does NOT automatically save the image to monthly memories; instead, saving to localStorage via `saveMonthlyMemory(month as Month, compositedDataUrl)` and invoking `onMemorySaved(month as Month)` must happen only when the user clicks the new \"Save to Memories\" button.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "When 'Save to Memories' is clicked..."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Capturing a selfie and seeing the static preview does not persist the memory until the user clicks \"Save to Memories\".",
-        "Clicking \"Save to Memories\" saves the currently previewed composited selfie to monthly memories for the active month and refreshes the yearly summary memory thumbnails via the existing `onMemorySaved` callback flow."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Implement the \"Retake\" button behavior in `frontend/src/components/MonthlyCompletionCelebrationModal.tsx`: when clicked from the selfie preview state, return the modal to camera mode to allow capturing a new selfie (clearing the current preview as needed and re-running the existing camera start + countdown flow).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "and 'Retake’."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Clicking \"Retake\" from the selfie preview switches back to the live camera preview and initiates the same countdown-driven capture experience as the original selfie flow.",
-        "After clicking \"Retake\", the previously captured preview is no longer shown unless captured again."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "When the user clicks \"Save to Memories\" in the congrats modal, show a centered pop-up notification using the existing `frontend/src/components/CenteredNotification.tsx` component with the exact English message \"Successfully saved! 📸\" and auto-dismiss it after 5 seconds (5000ms).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "When 'Save to Memories' is clicked, a pop-up notification at the middle of the screen should show with the following text : “¡Successfully saved! 📸” . The notification should automatically disappear after 5 seconds."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Clicking \"Save to Memories\" shows a notification centered on the screen with text: \"Successfully saved! 📸\".",
-        "The notification automatically disappears after 5 seconds.",
-        "The notification appears above the modal content (not hidden behind it)."
+        "When the app is on the initial LIFETIME GOALS dashboard (cards) view, the instructional text is visible above the cards container.",
+        "The instructional text matches the provided string exactly (including punctuation and casing).",
+        "The instructional text is visually small/subtle (e.g., muted color and smaller font) and does not break the cards layout or horizontal scrolling behavior."
       ]
     }
   ],
   "constraints": [
-    "Use English for any user-facing text (notification and button labels).",
-    "Do not edit files under `frontend/src/components/ui` or other immutable paths listed in SYSTEM_CONTEXT."
+    "Frontend changes must not modify any files under the listed immutable paths (e.g., frontend/src/components/ui, frontend/src/main.tsx, frontend/src/hooks/useActor.ts, frontend/src/hooks/useInternetIdentity.ts/x).",
+    "Do not introduce any backend changes for this UI-only text."
   ],
   "nonGoals": [
-    "No backend changes (monthly memories remain stored in browser localStorage).",
-    "No changes to the upload-photo flow behavior unless required to support the new selfie-preview buttons."
+    "Do not change the summary view (the per-month table) content or layout.",
+    "Do not change existing goal card behaviors (editing, adding, deleting, month selection, tooltip behavior)."
   ],
   "imageRequirements": {
     "required": [],

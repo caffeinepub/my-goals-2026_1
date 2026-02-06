@@ -1,12 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Update the Congrats modal selfie preview state to offer explicit “Save to Memories” and “Retake” actions, and show a centered success notification when saving.
+**Goal:** Add a small instructional sentence above the goal-category cards on the initial “LIFETIME GOALS” dashboard view.
 
 **Planned changes:**
-- In `frontend/src/components/MonthlyCompletionCelebrationModal.tsx`, replace the post-capture selfie preview primary action (“Take Selfie & Share”) with two buttons: “Save to Memories” and “Retake”.
-- Adjust the selfie flow so capturing a selfie only produces the static preview; saving to monthly memories (via the existing localStorage save + `onMemorySaved` callback) happens only when “Save to Memories” is clicked.
-- Implement “Retake” to clear the current preview and return to live camera mode, reusing the existing camera start + countdown capture flow.
-- On “Save to Memories”, display `frontend/src/components/CenteredNotification.tsx` with the exact text “Successfully saved! 📸”, ensure it appears above the modal, and auto-dismiss after 5000ms.
+- Display subtle instructional text above the horizontal scrollable goal-category cards container on the first LIFETIME GOALS (cards) view.
+- Ensure the text reads exactly: "Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!" and does not affect the cards layout or scrolling.
 
-**User-visible outcome:** After taking a selfie and seeing the preview in the Congrats modal, the user can choose to save it to Memories (and get a centered confirmation for 5 seconds) or retake the selfie before saving.
+**User-visible outcome:** On the initial LIFETIME GOALS cards screen, users see a small, muted instruction above the cards explaining how to pick/add a goal and assign it to a starting month.
