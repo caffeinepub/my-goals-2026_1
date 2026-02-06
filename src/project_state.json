@@ -4,11 +4,11 @@
   "summary": "New project",
   "architectural_notes": [],
   "known_issues": [],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-in-the-first-lifetime-goals-dashboard-view-the-view-that-shows-the-horizontal-scrollable-goal-category-cards-display-a-small-instructional-text-above-the-cards-that-reads-exactly-organize-your-life-pick-a-goal-or-add-a-new-one-and-assign-it-to-the-month-you-want-to-start-crushing-it",
-      "title": "In the first “LIFETIME GOALS” dashboard view (the view that shows the horizontal scrollable goal-category cards), display a small instructional text above the cards that reads exactly: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\"",
+      "id": "feature-update-the-back-to-dashboard-button-in-the-yearly-summary-view-header-in-frontend-src-components-yearlysummarytable-tsx-to-use-a-clearly-visible-high-contrast-style-e-g-a-solid-background-contrasting-text-so-it-does-not-blend-into-the-page-background",
+      "title": "Update the \"Back to dashboard\" button in the Yearly Summary view header (in `frontend/src/components/YearlySummaryTable.tsx`) to use a clearly visible, high-contrast style (e.g., a solid background + contrasting text) so it does not blend into the page background.",
       "reqIds": [
         "REQ-1"
       ],
@@ -18,12 +18,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add small instructional text to the first 'LIFETIME GOALS' cards view: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\"",
+      "summary": "Change the “Back to dashboard” button color to improve visibility",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Add instructional text to Lifetime Goals dashboard cards view",
+  "projectName": "Improve visibility of “Back to dashboard” button in summary view",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

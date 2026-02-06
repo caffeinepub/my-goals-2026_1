@@ -156,14 +156,19 @@ export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadS
       {/* Header with back button */}
       <div className="flex items-center justify-between">
         <Button
-          variant="outline"
+          variant="default"
           onClick={onBackToDashboard}
-          className="font-lora-italic"
+          className="font-lora-italic bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to dashboard
         </Button>
-        <h2 className="text-2xl font-lora-italic font-semibold">Time-Bound targets - 2026</h2>
+        <div className="flex flex-col items-center">
+          <h2 className="text-2xl font-lora-italic font-semibold">Time-Bound targets - 2026</h2>
+          <p className="text-sm text-muted-foreground mt-2 font-lora-italic text-center">
+            Mark your goals each time you complete one! ...Reach 100% to unlock your victory selfie and share your success.
+          </p>
+        </div>
         <div className="w-[140px]" /> {/* Spacer for centering */}
       </div>
 

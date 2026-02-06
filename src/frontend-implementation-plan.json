@@ -1,21 +1,21 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add instructional text to Lifetime Goals dashboard cards view",
+  "title": "High-contrast Back to dashboard button in Yearly Summary header",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Show a subtle instructional sentence above the horizontal scrollable goal-category cards on the initial LIFETIME GOALS dashboard view.",
+      "summary": "Restyle the Yearly Summary header “Back to dashboard” button to be high-contrast and clearly visible in both light and dark mode without changing its behavior.",
       "acceptanceCriteria": [
-        "When the app is on the initial LIFETIME GOALS dashboard (cards) view, the instructional text is visible above the cards container.",
-        "The instructional text matches the provided string exactly (including punctuation and casing).",
-        "The instructional text is visually small/subtle (e.g., muted color and smaller font) and does not break the cards layout or horizontal scrolling behavior."
+        "In the Summary view (where `YearlySummaryTable` renders), the \"Back to dashboard\" button is clearly visible at a glance against the surrounding background.",
+        "The button remains readable and distinct in both light and dark mode (no low-contrast outline-on-background appearance).",
+        "Clicking the button still returns the user to the dashboard view (no behavior regression)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/GoalsDashboard.tsx",
+          "path": "frontend/src/components/YearlySummaryTable.tsx",
           "operation": "modify",
-          "description": "In the dashboard (non-summary) rendering path, add a small/muted instructional text block directly above the existing cards scroll container. The text must read exactly: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\" Ensure styling is subtle (smaller font + muted color) and does not alter the flex + overflow-x horizontal scrolling behavior of the cards container."
+          "description": "Update the existing header Button styling for “Back to dashboard” to a solid, high-contrast appearance using Tailwind utility classes (no edits under `frontend/src/components/ui`). Use the shadcn-ui Button component’s supported props (e.g., switch from `variant=\"outline\"` to a solid variant if available) plus Tailwind classes to ensure strong contrast in both light and dark mode (e.g., `bg-primary` + `text-primary-foreground`, appropriate hover/focus ring, and optional shadow). Ensure `onBackToDashboard` handler wiring remains unchanged so navigation behavior does not regress. Verify the component's usage instructions before implementing."
         }
       ]
     }

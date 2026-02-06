@@ -1,34 +1,34 @@
 {
   "kind": "build_request",
-  "title": "Add instructional text to Lifetime Goals dashboard cards view",
+  "title": "Improve visibility of “Back to dashboard” button in summary view",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "In the first “LIFETIME GOALS” dashboard view (the view that shows the horizontal scrollable goal-category cards), display a small instructional text above the cards that reads exactly: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\"",
+      "text": "Update the \"Back to dashboard\" button in the Yearly Summary view header (in `frontend/src/components/YearlySummaryTable.tsx`) to use a clearly visible, high-contrast style (e.g., a solid background + contrasting text) so it does not blend into the page background.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4"
         ],
         "quotes": [
-          "In the first  'LIFETIME GOALS' view (where are the cards), add a small instructional text : \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it! \""
+          "Give color the button “Back to dashboard \" to make it visible."
         ]
       },
       "acceptanceCriteria": [
-        "When the app is on the initial LIFETIME GOALS dashboard (cards) view, the instructional text is visible above the cards container.",
-        "The instructional text matches the provided string exactly (including punctuation and casing).",
-        "The instructional text is visually small/subtle (e.g., muted color and smaller font) and does not break the cards layout or horizontal scrolling behavior."
+        "In the Summary view (where `YearlySummaryTable` renders), the \"Back to dashboard\" button is clearly visible at a glance against the surrounding background.",
+        "The button remains readable and distinct in both light and dark mode (no low-contrast outline-on-background appearance).",
+        "Clicking the button still returns the user to the dashboard view (no behavior regression)."
       ]
     }
   ],
   "constraints": [
-    "Frontend changes must not modify any files under the listed immutable paths (e.g., frontend/src/components/ui, frontend/src/main.tsx, frontend/src/hooks/useActor.ts, frontend/src/hooks/useInternetIdentity.ts/x).",
-    "Do not introduce any backend changes for this UI-only text."
+    "Do not edit files under `frontend/src/components/ui` (compose using existing components and Tailwind classes instead)."
   ],
   "nonGoals": [
-    "Do not change the summary view (the per-month table) content or layout.",
-    "Do not change existing goal card behaviors (editing, adding, deleting, month selection, tooltip behavior)."
+    "No changes to backend logic or persistence.",
+    "No changes to the button label text (keep it as \"Back to dashboard\").",
+    "No redesign of the summary table layout beyond the button styling."
   ],
   "imageRequirements": {
     "required": [],

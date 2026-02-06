@@ -1,10 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Add a small instructional sentence above the goal-category cards on the initial “LIFETIME GOALS” dashboard view.
+**Goal:** Make the “Back to dashboard” button in the Yearly Summary header clearly visible and high-contrast so it doesn’t blend into the page background.
 
 **Planned changes:**
-- Display subtle instructional text above the horizontal scrollable goal-category cards container on the first LIFETIME GOALS (cards) view.
-- Ensure the text reads exactly: "Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!" and does not affect the cards layout or scrolling.
+- Update the “Back to dashboard” button styling in `frontend/src/components/YearlySummaryTable.tsx` to use a solid, high-contrast button treatment (background + contrasting text) using existing components and Tailwind classes.
+- Ensure the button remains distinct and readable in both light and dark mode without changing its label or behavior.
 
-**User-visible outcome:** On the initial LIFETIME GOALS cards screen, users see a small, muted instruction above the cards explaining how to pick/add a goal and assign it to a starting month.
+**User-visible outcome:** In the Yearly Summary view, the “Back to dashboard” button is immediately noticeable and readable in light/dark mode, and still navigates back to the dashboard when clicked.

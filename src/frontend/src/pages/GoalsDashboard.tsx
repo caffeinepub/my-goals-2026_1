@@ -374,11 +374,6 @@ export default function GoalsDashboard() {
   if (view === 'summary') {
     return (
       <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="bg-black py-4">
-          <h1 className="text-center text-white text-2xl font-lora-italic">LIFETIME GOALS</h1>
-        </header>
-
         {/* Yearly Summary Table */}
         <main className="p-6">
           <YearlySummaryTable 
@@ -514,42 +509,40 @@ export default function GoalsDashboard() {
                           )}
                           
                           {/* Action buttons - always reserve space, show on hover/focus-within */}
-                          <div className="absolute right-0 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
-                            {isLastGoal && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => addGoal(card.id)}
-                                aria-label="Add new goal"
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            )}
+                          <div className="absolute right-0 top-3 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              className="h-7 w-7"
                               onClick={() => deleteGoal(card.id, goal.id)}
                               aria-label="Delete goal"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
                         </div>
-                        {index < card.goals.length - 1 && (
-                          <div className="border-b border-muted" />
-                        )}
+                        {!isLastGoal && <div className="border-b border-gray-200" />}
                       </div>
                     );
                   })}
+
+                  {/* Add Goal Button */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => addGoal(card.id)}
+                    className="w-full mt-2 font-lora-italic text-xs"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Goal
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         </TooltipProvider>
 
-        {/* View Summary Button */}
+        {/* View Toggle Button */}
         <div className="mt-8 text-center">
           <Button
             onClick={() => setView('summary')}
