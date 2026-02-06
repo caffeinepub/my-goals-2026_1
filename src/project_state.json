@@ -7,8 +7,8 @@
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-in-the-first-lifetime-goals-dashboard-view-the-view-that-shows-the-horizontal-scrollable-goal-category-cards-display-a-small-instructional-text-above-the-cards-that-reads-exactly-organize-your-life-pick-a-goal-or-add-a-new-one-and-assign-it-to-the-month-you-want-to-start-crushing-it",
-      "title": "In the first “LIFETIME GOALS” dashboard view (the view that shows the horizontal scrollable goal-category cards), display a small instructional text above the cards that reads exactly: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\"",
+      "id": "feature-in-the-goals-dashboard-dashboard-view-make-the-instructional-text-organize-your-life-pick-a-goal-or-add-a-new-one-and-assign-it-to-the-month-you-want-to-start-crushing-it-significantly-more-visible-while-keeping-the-text-content-exactly-the-same-update-its-styling-in-frontend-src-pages-goalsdashboard-tsx-currently-rendered-as-a-p-with-classes-text-sm-text-muted-foreground-mb-4-font-lora-italic-by-increasing-visual-prominence-e-g-larger-font-size-stronger-contrast-color-and-or-emphasis-such-as-font-weight-or-a-subtle-background-container-so-it-stands-out-above-the-goal-cards-in-both-light-and-dark-mode",
+      "title": "In the Goals Dashboard \"dashboard\" view, make the instructional text \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\" significantly more visible while keeping the text content exactly the same. Update its styling in frontend/src/pages/GoalsDashboard.tsx (currently rendered as a <p> with classes \"text-sm text-muted-foreground mb-4 font-lora-italic\") by increasing visual prominence (e.g., larger font size, stronger contrast color, and/or emphasis such as font weight or a subtle background container) so it stands out above the goal cards in both light and dark mode.",
       "reqIds": [
         "REQ-1"
       ],
@@ -18,12 +18,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add small instructional text to the first 'LIFETIME GOALS' cards view: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\"",
+      "summary": "Increase visibility of the text: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\"",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Add instructional text to Lifetime Goals dashboard cards view",
+  "projectName": "Increase visibility of dashboard instructional text",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

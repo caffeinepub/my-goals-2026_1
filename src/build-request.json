@@ -1,34 +1,36 @@
 {
   "kind": "build_request",
-  "title": "Add instructional text to Lifetime Goals dashboard cards view",
+  "title": "Increase visibility of dashboard instructional text",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "In the first “LIFETIME GOALS” dashboard view (the view that shows the horizontal scrollable goal-category cards), display a small instructional text above the cards that reads exactly: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\"",
+      "text": "In the Goals Dashboard \"dashboard\" view, make the instructional text \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\" significantly more visible while keeping the text content exactly the same. Update its styling in frontend/src/pages/GoalsDashboard.tsx (currently rendered as a <p> with classes \"text-sm text-muted-foreground mb-4 font-lora-italic\") by increasing visual prominence (e.g., larger font size, stronger contrast color, and/or emphasis such as font weight or a subtle background container) so it stands out above the goal cards in both light and dark mode.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-3"
         ],
         "quotes": [
-          "In the first  'LIFETIME GOALS' view (where are the cards), add a small instructional text : \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it! \""
+          "Make the text : \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\" more visible"
         ]
       },
       "acceptanceCriteria": [
-        "When the app is on the initial LIFETIME GOALS dashboard (cards) view, the instructional text is visible above the cards container.",
-        "The instructional text matches the provided string exactly (including punctuation and casing).",
-        "The instructional text is visually small/subtle (e.g., muted color and smaller font) and does not break the cards layout or horizontal scrolling behavior."
+        "The instructional text string remains exactly: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\" (no copy changes).",
+        "On the dashboard view, the instructional text is visually more prominent than before (at minimum: increased contrast vs. current text-muted-foreground and/or increased font size).",
+        "The instructional text remains readable and appropriately contrasted in both light mode and dark mode.",
+        "Layout remains stable: the text still appears above the horizontally scrollable goal cards and does not overlap other UI elements."
       ]
     }
   ],
   "constraints": [
-    "Frontend changes must not modify any files under the listed immutable paths (e.g., frontend/src/components/ui, frontend/src/main.tsx, frontend/src/hooks/useActor.ts, frontend/src/hooks/useInternetIdentity.ts/x).",
-    "Do not introduce any backend changes for this UI-only text."
+    "Frontend paths listed as immutable must not be edited (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui/*).",
+    "Do not introduce new backend canisters or services; this change should be frontend-only."
   ],
   "nonGoals": [
-    "Do not change the summary view (the per-month table) content or layout.",
-    "Do not change existing goal card behaviors (editing, adding, deleting, month selection, tooltip behavior)."
+    "Changing the instructional text wording.",
+    "Adding new goal-management features or changing goal card behavior.",
+    "Backend changes or data migration."
   ],
   "imageRequirements": {
     "required": [],

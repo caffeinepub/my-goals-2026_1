@@ -424,10 +424,12 @@ export default function GoalsDashboard() {
 
       {/* Cards Container */}
       <main className="p-6">
-        {/* Instructional Text */}
-        <p className="text-sm text-muted-foreground mb-4 font-lora-italic">
-          Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!
-        </p>
+        {/* Instructional Text - Enhanced Visibility */}
+        <div className="mb-6 bg-accent/10 border border-accent/20 rounded-lg px-6 py-4">
+          <p className="text-base md:text-lg text-foreground font-lora-italic font-medium leading-relaxed">
+            Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!
+          </p>
+        </div>
 
         <TooltipProvider delayDuration={300}>
           <div
@@ -521,7 +523,7 @@ export default function GoalsDashboard() {
                                 size="icon"
                                 className="h-7 w-7"
                                 onClick={() => addGoal(card.id)}
-                                aria-label="Add new goal"
+                                title="Add new goal"
                               >
                                 <Plus className="h-4 w-4" />
                               </Button>
@@ -531,15 +533,13 @@ export default function GoalsDashboard() {
                               size="icon"
                               className="h-7 w-7 text-destructive hover:text-destructive"
                               onClick={() => deleteGoal(card.id, goal.id)}
-                              aria-label="Delete goal"
+                              title="Delete goal"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
-                        {index < card.goals.length - 1 && (
-                          <div className="border-b border-muted" />
-                        )}
+                        {!isLastGoal && <div className="border-b border-muted" />}
                       </div>
                     );
                   })}
@@ -549,7 +549,7 @@ export default function GoalsDashboard() {
           </div>
         </TooltipProvider>
 
-        {/* View Summary Button */}
+        {/* View Toggle Button */}
         <div className="mt-8 text-center">
           <Button
             onClick={() => setView('summary')}

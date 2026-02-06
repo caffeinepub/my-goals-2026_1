@@ -1,10 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Add a small instructional sentence above the goal-category cards on the initial “LIFETIME GOALS” dashboard view.
+**Goal:** Make the Goals Dashboard instructional text significantly more visible while keeping its wording unchanged.
 
 **Planned changes:**
-- Display subtle instructional text above the horizontal scrollable goal-category cards container on the first LIFETIME GOALS (cards) view.
-- Ensure the text reads exactly: "Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!" and does not affect the cards layout or scrolling.
+- Update the styling of the instructional `<p>` in `frontend/src/pages/GoalsDashboard.tsx` to increase prominence (e.g., larger font size, higher-contrast color, and/or added emphasis such as weight or a subtle container background).
+- Ensure the updated styling maintains good readability/contrast in both light mode and dark mode without affecting layout placement above the goal cards.
 
-**User-visible outcome:** On the initial LIFETIME GOALS cards screen, users see a small, muted instruction above the cards explaining how to pick/add a goal and assign it to a starting month.
+**User-visible outcome:** On the dashboard view, the instructional text (“Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!”) stands out clearly above the goal cards in both light and dark mode.

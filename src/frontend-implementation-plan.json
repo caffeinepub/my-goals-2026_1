@@ -1,21 +1,22 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add instructional text to Lifetime Goals dashboard cards view",
+  "title": "Increase visibility of Goals Dashboard instructional text",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Show a subtle instructional sentence above the horizontal scrollable goal-category cards on the initial LIFETIME GOALS dashboard view.",
+      "summary": "Make the dashboard instructional text more visually prominent (without changing its content) and ensure strong contrast in light/dark mode while keeping layout stable above the goal cards.",
       "acceptanceCriteria": [
-        "When the app is on the initial LIFETIME GOALS dashboard (cards) view, the instructional text is visible above the cards container.",
-        "The instructional text matches the provided string exactly (including punctuation and casing).",
-        "The instructional text is visually small/subtle (e.g., muted color and smaller font) and does not break the cards layout or horizontal scrolling behavior."
+        "The instructional text string remains exactly: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\" (no copy changes).",
+        "On the dashboard view, the instructional text is visually more prominent than before (at minimum: increased contrast vs. current text-muted-foreground and/or increased font size).",
+        "The instructional text remains readable and appropriately contrasted in both light mode and dark mode.",
+        "Layout remains stable: the text still appears above the horizontally scrollable goal cards and does not overlap other UI elements."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/GoalsDashboard.tsx",
           "operation": "modify",
-          "description": "In the dashboard (non-summary) rendering path, add a small/muted instructional text block directly above the existing cards scroll container. The text must read exactly: \"Organize your life: pick a goal (or add a new one) and assign it to the month you want to start crushing it!\" Ensure styling is subtle (smaller font + muted color) and does not alter the flex + overflow-x horizontal scrolling behavior of the cards container."
+          "description": "Update the dashboard view’s instructional text styling (currently a <p> with \"text-sm text-muted-foreground mb-4 font-lora-italic\") to be significantly more prominent while keeping the text content exactly the same—e.g., increase font size, switch to a higher-contrast theme-aware text color, add emphasis (font weight), and optionally place it in a subtle theme-aware container (bg/border) that remains readable in both light and dark mode and stays positioned above the horizontally scrollable goal cards."
         }
       ]
     }
