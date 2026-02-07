@@ -1,10 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Make the “Back to dashboard” button in the Yearly Summary header clearly visible and high-contrast so it doesn’t blend into the page background.
+**Goal:** Prevent the MonthlyCompletionCelebrationModal (congrats modal) from re-opening when returning to the Yearly Summary after navigating back to the dashboard.
 
 **Planned changes:**
-- Update the “Back to dashboard” button styling in `frontend/src/components/YearlySummaryTable.tsx` to use a solid, high-contrast button treatment (background + contrasting text) using existing components and Tailwind classes.
-- Ensure the button remains distinct and readable in both light and dark mode without changing its label or behavior.
+- Update the completion-transition detection logic in `frontend/src/components/YearlySummaryTable.tsx` so the congrats modal only triggers on a true in-session transition from not-complete to 100% complete (e.g., checking the final remaining checkbox for a month).
+- Ensure opening (or re-opening) the Yearly Summary view does not treat already-complete saved months as newly completed, while preserving existing monthly memory thumbnail/placeholder behavior.
 
-**User-visible outcome:** In the Yearly Summary view, the “Back to dashboard” button is immediately noticeable and readable in light/dark mode, and still navigates back to the dashboard when clicked.
+**User-visible outcome:** When a user goes from Yearly Summary to Dashboard (“Back to dashboard”) and then reopens Yearly Summary (“View yearly summary”), the congrats modal will not auto-open; it will still appear only when the user completes a month by checking its final checkbox during the current session.

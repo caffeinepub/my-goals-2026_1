@@ -1,21 +1,21 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "High-contrast Back to dashboard button in Yearly Summary header",
+  "title": "Stop MonthlyCompletionCelebrationModal from reopening when revisiting Yearly Summary",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Restyle the Yearly Summary header “Back to dashboard” button to be high-contrast and clearly visible in both light and dark mode without changing its behavior.",
+      "summary": "Prevent the congrats modal from auto-opening on Yearly Summary re-entry by fixing completion-transition detection to ignore pre-existing 100% months and only trigger on in-session transitions.",
       "acceptanceCriteria": [
-        "In the Summary view (where `YearlySummaryTable` renders), the \"Back to dashboard\" button is clearly visible at a glance against the surrounding background.",
-        "The button remains readable and distinct in both light and dark mode (no low-contrast outline-on-background appearance).",
-        "Clicking the button still returns the user to the dashboard view (no behavior regression)."
+        "Given at least one month is already 100% complete in the saved Yearly Summary checkbox state, when the user opens Yearly Summary, clicks \"Back to dashboard\", and then clicks \"View yearly summary\" again, the MonthlyCompletionCelebrationModal must not automatically open.",
+        "The MonthlyCompletionCelebrationModal must still open when (and only when) a month transitions from not-complete to 100% complete due to the user checking the final remaining checkbox for that month during the current session.",
+        "The fix must be implemented in or via the current completion-transition detection in frontend/src/components/YearlySummaryTable.tsx without breaking existing monthly memory thumbnail/placeholder behavior."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/YearlySummaryTable.tsx",
           "operation": "modify",
-          "description": "Update the existing header Button styling for “Back to dashboard” to a solid, high-contrast appearance using Tailwind utility classes (no edits under `frontend/src/components/ui`). Use the shadcn-ui Button component’s supported props (e.g., switch from `variant=\"outline\"` to a solid variant if available) plus Tailwind classes to ensure strong contrast in both light and dark mode (e.g., `bg-primary` + `text-primary-foreground`, appropriate hover/focus ring, and optional shadow). Ensure `onBackToDashboard` handler wiring remains unchanged so navigation behavior does not regress. Verify the component's usage instructions before implementing."
+          "description": "Adjust the month 100%-completion transition effect to initialize previousCompletionRef from the currently-loaded checkbox state on first render (and/or gate the transition check behind an initialization ref) so pre-completed months do not trigger the celebration modal when the Yearly Summary view mounts/remounts; ensure the modal only opens on false→true transitions caused by checkbox toggles during the active session, and keep existing monthly memory thumbnail/placeholder behavior unchanged."
         }
       ]
     }

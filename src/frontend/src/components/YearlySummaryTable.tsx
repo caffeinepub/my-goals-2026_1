@@ -8,6 +8,7 @@ import MonthlyProgressDonut from './MonthlyProgressDonut';
 import MonthlyCompletionCelebrationModal from './MonthlyCompletionCelebrationModal';
 import MonthlyMemoryShareActions from './MonthlyMemoryShareActions';
 import { getAllMonthlyMemories } from '@/lib/monthlyMemoryStorage';
+import { loadCheckboxState, saveCheckboxState } from '@/lib/yearlySummaryCheckboxStorage';
 
 interface Goal {
   id: string;
@@ -32,8 +33,10 @@ interface YearlySummaryTableProps {
 }
 
 export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadSaveSuccess }: YearlySummaryTableProps) {
-  // Local state for checkbox toggles (UI-only, not persisted)
-  const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
+  // Initialize checkbox state from localStorage
+  const [checkedState, setCheckedState] = useState<Record<string, boolean>>(() => {
+    return loadCheckboxState();
+  });
   
   // Celebration modal state
   const [celebrationModalOpen, setCelebrationModalOpen] = useState(false);
@@ -41,6 +44,9 @@ export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadS
   
   // Track previous completion status for each month to detect transitions
   const previousCompletionRef = useRef<Partial<Record<Month, boolean>>>({});
+  
+  // Track whether we've initialized the previousCompletionRef
+  const isInitializedRef = useRef(false);
 
   // Monthly memories state
   const [monthlyMemories, setMonthlyMemories] = useState<Map<Month, string>>(new Map());
@@ -52,6 +58,11 @@ export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadS
   useEffect(() => {
     setMonthlyMemories(getAllMonthlyMemories());
   }, []);
+
+  // Persist checkbox state to localStorage whenever it changes
+  useEffect(() => {
+    saveCheckboxState(checkedState);
+  }, [checkedState]);
 
   // Callback to refresh monthly memories when a new one is saved
   const handleMemorySaved = () => {
@@ -129,10 +140,19 @@ export default function YearlySummaryTable({ cards, onBackToDashboard, onUploadS
     MONTHS.forEach((month) => {
       const stats = calculateMonthStatistics(month);
       currentCompletion[month] = stats.isComplete;
-      
-      // Check if this month just reached 100% (transition from false to true)
+    });
+    
+    // On first render, initialize the ref without triggering modals
+    if (!isInitializedRef.current) {
+      previousCompletionRef.current = currentCompletion;
+      isInitializedRef.current = true;
+      return;
+    }
+    
+    // On subsequent renders, check for transitions
+    MONTHS.forEach((month) => {
       const wasComplete = previousCompletionRef.current[month] || false;
-      const isNowComplete = stats.isComplete;
+      const isNowComplete = currentCompletion[month] || false;
       
       if (!wasComplete && isNowComplete) {
         // Month just reached 100% - open celebration modal
