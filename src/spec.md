@@ -1,10 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Prevent the MonthlyCompletionCelebrationModal (congrats modal) from re-opening when returning to the Yearly Summary after navigating back to the dashboard.
+**Goal:** Close the Congrats (MonthlyCompletionCelebrationModal) modal immediately when saving to Memories, and show a confirmation pop-up for 3 seconds.
 
 **Planned changes:**
-- Update the completion-transition detection logic in `frontend/src/components/YearlySummaryTable.tsx` so the congrats modal only triggers on a true in-session transition from not-complete to 100% complete (e.g., checking the final remaining checkbox for a month).
-- Ensure opening (or re-opening) the Yearly Summary view does not treat already-complete saved months as newly completed, while preserving existing monthly memory thumbnail/placeholder behavior.
+- Update the "Save to Memories" button flow to close/hide the Congrats modal immediately on click.
+- Trigger a global (non-modal) pop-up notification after the click that auto-dismisses after ~3000ms.
+- Keep the existing save-to-memories behavior and monthly memories UI refresh unchanged.
 
-**User-visible outcome:** When a user goes from Yearly Summary to Dashboard (“Back to dashboard”) and then reopens Yearly Summary (“View yearly summary”), the congrats modal will not auto-open; it will still appear only when the user completes a month by checking its final checkbox during the current session.
+**User-visible outcome:** When the user clicks "Save to Memories" in the Congrats modal, the modal closes right away and a confirmation pop-up appears for about 3 seconds while the save and UI refresh still work as they do today.

@@ -1,21 +1,27 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Stop MonthlyCompletionCelebrationModal from reopening when revisiting Yearly Summary",
+  "title": "Close Congrats modal on save and show 3-second notification",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Prevent the congrats modal from auto-opening on Yearly Summary re-entry by fixing completion-transition detection to ignore pre-existing 100% months and only trigger on in-session transitions.",
+      "summary": "Close the MonthlyCompletionCelebrationModal immediately on “Save to Memories” click and show a global 3-second confirmation notification while keeping existing save + monthly memories refresh behavior.",
       "acceptanceCriteria": [
-        "Given at least one month is already 100% complete in the saved Yearly Summary checkbox state, when the user opens Yearly Summary, clicks \"Back to dashboard\", and then clicks \"View yearly summary\" again, the MonthlyCompletionCelebrationModal must not automatically open.",
-        "The MonthlyCompletionCelebrationModal must still open when (and only when) a month transitions from not-complete to 100% complete due to the user checking the final remaining checkbox for that month during the current session.",
-        "The fix must be implemented in or via the current completion-transition detection in frontend/src/components/YearlySummaryTable.tsx without breaking existing monthly memory thumbnail/placeholder behavior."
+        "Clicking \"Save to Memories\" closes the Congrats modal immediately (no waiting for a notification to finish).",
+        "A pop-up notification appears after the click and auto-dismisses after ~3000ms.",
+        "The pop-up notification is visible even though the modal is closed (i.e., it is not rendered inside the modal content).",
+        "The memory is still saved successfully and the monthly memories UI refreshes as it does today."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/YearlySummaryTable.tsx",
+          "path": "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
           "operation": "modify",
-          "description": "Adjust the month 100%-completion transition effect to initialize previousCompletionRef from the currently-loaded checkbox state on first render (and/or gate the transition check behind an initialization ref) so pre-completed months do not trigger the celebration modal when the Yearly Summary view mounts/remounts; ensure the modal only opens on false→true transitions caused by checkbox toggles during the active session, and keep existing monthly memory thumbnail/placeholder behavior unchanged."
+          "description": "Update the “Save to Memories” click handler to (1) save the memory and trigger the existing parent refresh callback as it does today, (2) immediately close the dialog via onOpenChange(false), and (3) show a global confirmation notification for ~3000ms using the existing shadcn-ui Sonner Toaster already mounted at the app root (import and call toast from Sonner with a 3000ms duration). Remove/stop using the in-modal CenteredNotification state/logic so the notification is not rendered within the modal. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Confirm the global Toaster remains mounted alongside the main app content so notifications triggered from MonthlyCompletionCelebrationModal render outside of the modal tree. (No behavioral change expected; only adjust if required.) Verify the component's usage instructions before implementing."
         }
       ]
     }

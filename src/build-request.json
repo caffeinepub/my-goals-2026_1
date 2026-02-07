@@ -1,35 +1,36 @@
 {
   "kind": "build_request",
-  "title": "Prevent congrats (celebration) modal from reopening when returning to Yearly Summary",
+  "title": "Close Congrats modal on Save to Memories and show 3-second pop-up notification",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the Yearly Summary completion-transition logic so the MonthlyCompletionCelebrationModal (congrats modal) does not auto-open when navigating from Yearly Summary to Dashboard via the \"Back to dashboard\" button and then reopening Yearly Summary via \"View yearly summary\".",
+      "text": "When the user clicks the \"Save to Memories\" button in the Congrats (MonthlyCompletionCelebrationModal) modal, immediately hide/close the modal and then show a pop-up notification for 3 seconds confirming the save.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "After pressing the Back to the dashboard\" button and press \"View yearly summary\"  is appearing the congrats modal. Fix it."
+          "In the congrats modal,  after clicking on the button:  'Save to Memories'  ,  Hide the Congrats modal and shows a pop-up notification for 3 seconds."
         ]
       },
       "acceptanceCriteria": [
-        "Given at least one month is already 100% complete in the saved Yearly Summary checkbox state, when the user opens Yearly Summary, clicks \"Back to dashboard\", and then clicks \"View yearly summary\" again, the MonthlyCompletionCelebrationModal must not automatically open.",
-        "The MonthlyCompletionCelebrationModal must still open when (and only when) a month transitions from not-complete to 100% complete due to the user checking the final remaining checkbox for that month during the current session.",
-        "The fix must be implemented in or via the current completion-transition detection in frontend/src/components/YearlySummaryTable.tsx without breaking existing monthly memory thumbnail/placeholder behavior."
+        "Clicking \"Save to Memories\" closes the Congrats modal immediately (no waiting for a notification to finish).",
+        "A pop-up notification appears after the click and auto-dismisses after ~3000ms.",
+        "The pop-up notification is visible even though the modal is closed (i.e., it is not rendered inside the modal content).",
+        "The memory is still saved successfully and the monthly memories UI refreshes as it does today."
       ]
     }
   ],
   "constraints": [
-    "Frontend immutable paths must not be edited: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui (compose only).",
-    "Backend is single-actor Motoko; no backend changes are required for this UI-state bug."
+    "Do not edit files under frontend/src/components/ui (Shadcn components are read-only).",
+    "Do not modify frontend/src/main.tsx or the Internet Identity hooks (immutable paths).",
+    "Keep backend unchanged (backend/main.mo remains unused for this feature)."
   ],
   "nonGoals": [
-    "Do not redesign the Yearly Summary table UI.",
-    "Do not change how checkbox state is persisted (localStorage key, schema, or storage utility behavior) unless required to prevent the unwanted modal opening.",
-    "Do not add new authentication, routing, or backend persistence for this fix."
+    "Adding new backend persistence for memories (memories remain stored as they are today).",
+    "Changing the wording of the \"Save to Memories\" button."
   ],
   "imageRequirements": {
     "required": [],

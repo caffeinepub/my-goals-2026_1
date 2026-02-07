@@ -8,11 +8,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { X, Upload, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCelebrationCamera } from '@/hooks/useCelebrationCamera';
 import { saveMonthlyMemory } from '@/lib/monthlyMemoryStorage';
 import { createCelebrationComposite, fileToDataUrl, OVERLAY_IMAGE_PATH } from '@/lib/celebrationImageComposite';
 import { type Month } from '@/lib/months';
-import CenteredNotification from '@/components/CenteredNotification';
 
 interface MonthlyCompletionCelebrationModalProps {
   open: boolean;
@@ -41,14 +41,12 @@ export default function MonthlyCompletionCelebrationModal({
   const [isStartingCamera, setIsStartingCamera] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSelfieCapture, setIsSelfieCapture] = useState(false);
-  const [showSaveNotification, setShowSaveNotification] = useState(false);
   const [isCapturingPhoto, setIsCapturingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isCapturingRef = useRef(false);
   const retryIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const captureTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const pendingCloseRef = useRef(false); // Track if modal should close after notification
   
   // Refs that stay in sync with state for async guards
   const openRef = useRef(open);
@@ -81,13 +79,6 @@ export default function MonthlyCompletionCelebrationModal({
   useEffect(() => {
     isCameraModeRef.current = isCameraMode;
   }, [isCameraMode]);
-
-  // Clear pending close flag when modal is manually closed
-  useEffect(() => {
-    if (!open) {
-      pendingCloseRef.current = false;
-    }
-  }, [open]);
 
   // Helper to check if a URL is an object URL (blob:)
   const isObjectURL = (url: string | null): boolean => {
@@ -161,7 +152,6 @@ export default function MonthlyCompletionCelebrationModal({
       setIsStartingCamera(false);
       setIsProcessing(false);
       setIsSelfieCapture(false);
-      setShowSaveNotification(false);
 
       // Reset file input
       if (fileInputRef.current) {
@@ -460,20 +450,13 @@ export default function MonthlyCompletionCelebrationModal({
       onMemorySaved(month as Month);
     }
 
-    // Show success notification and mark modal for pending close
-    setShowSaveNotification(true);
-    pendingCloseRef.current = true;
-  };
+    // Close the modal immediately
+    onOpenChange(false);
 
-  const handleNotificationDismiss = () => {
-    setShowSaveNotification(false);
-    
-    // Close modal if it was pending close and still open
-    if (pendingCloseRef.current && openRef.current) {
-      console.log('[Modal] Notification dismissed, closing modal');
-      pendingCloseRef.current = false;
-      onOpenChange(false);
-    }
+    // Show toast notification for 3 seconds
+    toast.success('Memory saved successfully!', {
+      duration: 3000,
+    });
   };
 
   const handleRetake = async () => {
@@ -519,391 +502,296 @@ export default function MonthlyCompletionCelebrationModal({
     setIsStartingCamera(true);
     isCapturingRef.current = false;
 
-    // Switch to camera mode immediately (hide static image)
-    setIsCameraMode(true);
+    // Start camera
+    try {
+      const success = await startCamera();
+      
+      if (!success) {
+        console.error('[Modal] Failed to start camera');
+        setIsStartingCamera(false);
+        setCameraError('Failed to start camera. Please check permissions and try again.');
+        return;
+      }
 
-    console.log('[Modal] Starting camera...');
+      console.log('[Modal] Camera started, waiting for preview to be ready...');
+      
+      // Wait for preview to be ready (no timeout parameter - uses internal 5s timeout)
+      const previewReady = await waitForPreviewReady();
+      
+      if (!previewReady) {
+        console.error('[Modal] Camera preview not ready after timeout');
+        setIsStartingCamera(false);
+        await stopCamera();
+        setCameraError('Camera preview timed out. Please try again.');
+        return;
+      }
 
-    // Check if camera is supported
-    if (isSupported === false) {
-      console.error('[Modal] Camera not supported');
-      setCameraError('Camera is not supported on this device or browser. Please use the "Upload Photo" button below to select a photo from your files.');
+      console.log('[Modal] Camera preview ready, entering camera mode');
       setIsStartingCamera(false);
-      setIsCameraMode(false);
-      console.log('[Modal] Camera not supported, exiting');
+      setIsCameraMode(true);
+      
+      // Start countdown after a brief delay to ensure UI is stable
+      setTimeout(() => {
+        startCountdown();
+      }, 500);
+      
+    } catch (err) {
+      console.error('[Modal] Error starting camera:', err);
+      setIsStartingCamera(false);
+      setCameraError(`Failed to start camera: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    console.log('[Modal] File selected for upload:', file.name);
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setCameraError('Please select a valid image file.');
       return;
     }
 
-    // Try to start camera
-    const success = await startCamera();
-    console.log('[Modal] Camera start result:', success);
-    
-    if (success) {
-      setCameraError(null);
-      
-      console.log('[Modal] Camera started, waiting for preview readiness...');
-      
-      // Wait for preview to be fully ready before starting countdown
-      const previewReady = await waitForPreviewReady();
-      
-      setIsStartingCamera(false);
-      
-      console.log('[Modal] Preview ready result:', previewReady);
-      
-      if (previewReady) {
-        // Verify video element has non-zero dimensions
-        const video = videoRef.current;
-        if (video && video.videoWidth > 0 && video.videoHeight > 0) {
-          console.log('[Modal] Preview confirmed ready with dimensions:', video.videoWidth, 'x', video.videoHeight);
-          // Start countdown only after preview is confirmed ready
-          startCountdown();
-        } else {
-          // Preview dimensions not ready
-          console.error('[Modal] Preview dimensions not ready:', video?.videoWidth, 'x', video?.videoHeight);
-          setCameraError('Camera preview failed to load. Please try again or use the "Upload Photo" button below.');
-          setIsCameraMode(false);
-          await teardownCaptureFlow();
-        }
-      } else {
-        // Preview failed to become ready
-        console.error('[Modal] Preview failed to become ready');
-        setCameraError('Camera preview failed to load. Please try again or use the "Upload Photo" button below.');
-        setIsCameraMode(false);
-        await teardownCaptureFlow();
-      }
-    } else {
-      // Camera failed - show error message based on error type
-      console.error('[Modal] Camera start failed, error:', error);
-      if (error?.type === 'permission') {
-        setCameraError('Camera permission was denied. Please allow camera access in your browser settings, or use the "Upload Photo" button below to select a photo from your files.');
-      } else if (error?.type === 'not-found') {
-        setCameraError('No camera found on this device. Please use the "Upload Photo" button below to select a photo from your files.');
-      } else if (error?.type === 'not-supported') {
-        setCameraError('Camera is not supported on this device or browser. Please use the "Upload Photo" button below to select a photo from your files.');
-      } else {
-        setCameraError('Unable to start camera. Please use the "Upload Photo" button below to select a photo from your files.');
-      }
-      setIsCameraMode(false);
-      setIsStartingCamera(false);
-      console.log('[Modal] Camera start failed, exiting');
-    }
-  };
+    setIsProcessing(true);
+    setCameraError(null);
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
+    try {
+      // Convert uploaded file to data URL
+      const uploadedDataUrl = await fileToDataUrl(file);
+      console.log('[Modal] Converted uploaded file to data URL');
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      console.log('[Modal] Processing uploaded file:', file.name, file.size);
-      setIsProcessing(true);
-      
+      // Attempt to create composited image with Polaroid frame and overlay
+      let finalImageUrl: string;
       try {
-        // Convert uploaded file to data URL
-        const selfieDataUrl = await fileToDataUrl(file);
-        
-        // Create composited image with Polaroid frame and overlay
-        const compositedDataUrl = await createCelebrationComposite({
-          selfieDataUrl,
+        console.log('[Modal] Attempting to create celebration composite from upload...');
+        finalImageUrl = await createCelebrationComposite({
+          selfieDataUrl: uploadedDataUrl,
         });
-        
-        // Revoke previous URL if it's an object URL
-        if (isObjectURL(selectedImage)) {
-          URL.revokeObjectURL(selectedImage!);
-        }
-        
-        // Set the composited image for display
-        setSelectedImage(compositedDataUrl);
-        setIsSelfieCapture(true);
-        setCameraError(null);
-
-        // Save composited image to localStorage
-        saveMonthlyMemory(month as Month, compositedDataUrl);
-        
-        // Notify parent that memory was saved
-        if (onMemorySaved) {
-          onMemorySaved(month as Month);
-        }
-
-        console.log('[Modal] Upload processed and saved successfully');
-
-        // Close modal and trigger upload success notification
-        onOpenChange(false);
-        if (onUploadSaveSuccess) {
-          onUploadSaveSuccess();
-        }
-      } catch (error) {
-        console.error('[Modal] Failed to process uploaded photo:', error);
-        setCameraError('Failed to process photo. Please try again.');
-      } finally {
-        setIsProcessing(false);
+        console.log('[Modal] Composite created successfully from upload');
+      } catch (compositeError) {
+        // Compositing failed - fall back to raw upload
+        console.error('[Modal] Compositing failed for upload, falling back to raw image:', compositeError);
+        finalImageUrl = uploadedDataUrl;
       }
+
+      // Revoke previous URL if it's an object URL
+      if (isObjectURL(selectedImage)) {
+        URL.revokeObjectURL(selectedImage!);
+      }
+
+      // Set the final image for display
+      setSelectedImage(finalImageUrl);
+      setIsSelfieCapture(false); // Mark as uploaded, not selfie
+      
+      // Notify parent if callback provided
+      if (onUploadSaveSuccess) {
+        onUploadSaveSuccess();
+      }
+
+      console.log('[Modal] Upload processed successfully');
+    } catch (err) {
+      console.error('[Modal] Error processing uploaded file:', err);
+      setCameraError(`Failed to process image: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleClose = async () => {
-    console.log('[Modal] Closing modal');
-    // Clear pending close flag
-    pendingCloseRef.current = false;
-    
-    // Clean up any active flows
-    await teardownCaptureFlow();
-    
-    onOpenChange(false);
-  };
-
-  const handleMaybeLater = async () => {
-    console.log('[Modal] Maybe later clicked');
-    // Clear pending close flag
-    pendingCloseRef.current = false;
-    
-    // Clean up any active flows
-    await teardownCaptureFlow();
-    
-    // Notify parent that "Maybe Later" was clicked
-    if (onMaybeLater) {
-      onMaybeLater(month as Month);
-    }
+  const handleMaybeLater = () => {
+    console.log('[Modal] Maybe Later clicked');
     
     // Close the modal
     onOpenChange(false);
+    
+    // Notify parent if callback provided
+    if (onMaybeLater) {
+      onMaybeLater(month as Month);
+    }
   };
 
-  // Determine which image to display
-  const displayImage = selectedImage || DEFAULT_CELEBRATION_IMAGE;
-  
-  // Only show badge overlay on the default image (not on user-captured/uploaded images)
-  const showBadgeOverlay = !isCameraMode && !selectedImage;
-
-  // Determine if we're in selfie preview mode (after capture, before save)
-  const isInSelfiePreview = isSelfieCapture && selectedImage && !isCameraMode;
-
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[600px] bg-background p-0 overflow-hidden celebration-modal">
-          {/* Close button */}
-          <button
-            onClick={handleClose}
-            className="absolute right-4 top-4 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-            aria-label="Close"
-          >
-            <X className="h-5 w-5" />
-          </button>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="celebration-modal max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-3xl font-bold text-center mb-2">
+            🎉 Congratulations! 🎉
+          </DialogTitle>
+          <DialogDescription className="text-center text-lg">
+            You've completed all your goals for {month}!
+          </DialogDescription>
+        </DialogHeader>
 
-          {/* Confetti overlay */}
-          <div className="confetti-overlay-container">
-            <img
-              src="/assets/generated/confetti-overlay.dim_1024x1024.png"
-              alt=""
-              className="confetti-overlay-image"
-              aria-hidden="true"
-            />
-          </div>
-
-          <DialogHeader className="pt-8 px-6 pb-4 relative z-10">
-            <DialogTitle className="text-center text-2xl font-lora-italic leading-relaxed">
-              Congrats!!....😍
-            </DialogTitle>
-            <DialogDescription className="text-center text-lg font-lora-italic pt-2 text-foreground">
-              You reached 100% of your goals this month! 🎉 Want to celebrate with a selfie?
-            </DialogDescription>
-          </DialogHeader>
-
-          {/* Media area */}
-          <div className="relative px-6 pb-6">
-            <div className="media-preview-container">
-              {isCameraMode ? (
-                <>
-                  {/* Live camera preview */}
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="camera-preview-video"
-                  />
-                  <canvas ref={canvasRef} className="hidden" />
-                  
-                  {/* Loading overlay while camera is starting or preview is not ready */}
-                  {(isStartingCamera || !isPreviewReady) && countdown === null && !isCapturingPhoto && (
-                    <div className="camera-loading-overlay">
-                      <div className="camera-loading-content">
-                        <Loader2 className="h-12 w-12 animate-spin text-white mb-3" />
-                        <p className="text-white text-lg font-lora-italic">
-                          Preparing camera...
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Capturing overlay during retry attempts */}
-                  {isCapturingPhoto && !isProcessing && (
-                    <div className="camera-loading-overlay">
-                      <div className="camera-loading-content">
-                        <Loader2 className="h-12 w-12 animate-spin text-white mb-3" />
-                        <p className="text-white text-lg font-lora-italic">
-                          Capturing photo...
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Processing overlay after successful capture */}
-                  {isProcessing && (
-                    <div className="camera-loading-overlay">
-                      <div className="camera-loading-content">
-                        <Loader2 className="h-12 w-12 animate-spin text-white mb-3" />
-                        <p className="text-white text-lg font-lora-italic">
-                          Creating your memory...
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Countdown overlay - show immediately after camera starts */}
-                  {countdown !== null && !isProcessing && !isCapturingPhoto && (
-                    <div className="countdown-overlay">
-                      <div className="countdown-text">
-                        {countdown}
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                /* Static image preview - show composited user photo or default image with badge */
-                <div className="celebration-polaroid-wrapper">
-                  {/* Caption for selfie captures */}
-                  {isSelfieCapture && (
-                    <div className="celebration-caption">
-                      I crushed my monthly goals!
-                    </div>
-                  )}
-                  
-                  <div className="celebration-polaroid-frame">
-                    <img
-                      src={displayImage}
-                      alt="Your celebration selfie"
-                      className="celebration-polaroid-image"
-                    />
-                    
-                    {/* Badge overlay - only show on default image, using same overlay as compositing */}
-                    {showBadgeOverlay && (
-                      <div className="celebration-badge-overlay">
-                        <img
-                          src={OVERLAY_IMAGE_PATH}
-                          alt="I crushed my monthly goals!"
-                          className="celebration-badge-image"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+        <div className="space-y-6 mt-4">
+          {/* Camera Error Display */}
+          {cameraError && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-destructive text-sm">
+              {cameraError}
             </div>
+          )}
 
-            {/* Camera error message */}
-            {cameraError && (
-              <div className="mt-3 p-3 text-sm bg-destructive/10 text-destructive rounded-md border border-destructive/20">
-                {cameraError}
+          {/* Camera Mode - Active Capture */}
+          {isCameraMode && (
+            <div className="space-y-4">
+              <div className="relative aspect-[4/3] bg-black rounded-lg overflow-hidden">
+                {/* Video Preview */}
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                  style={{ transform: 'scaleX(-1)' }}
+                />
+                
+                {/* Countdown Overlay */}
+                {countdown !== null && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                    <div className="celebration-countdown text-white text-9xl font-bold">
+                      {countdown === 0 ? '📸' : countdown}
+                    </div>
+                  </div>
+                )}
+
+                {/* Capturing Overlay */}
+                {isCapturingPhoto && countdown === null && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                    <div className="text-white text-2xl font-semibold flex items-center gap-3">
+                      <Loader2 className="w-8 h-8 animate-spin" />
+                      Capturing...
+                    </div>
+                  </div>
+                )}
+
+                {/* Canvas for capture (hidden) */}
+                <canvas ref={canvasRef} className="hidden" />
               </div>
-            )}
-          </div>
 
-          {/* Action buttons */}
-          <div className="flex flex-col gap-3 px-6 pb-6 relative z-10">
-            {isInSelfiePreview ? (
-              /* Show "Save to Memories" and "Retake" buttons after selfie capture */
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="text-center text-sm text-muted-foreground">
+                {countdown !== null ? 'Get ready!' : isCapturingPhoto ? 'Hold still...' : 'Smile!'}
+              </div>
+            </div>
+          )}
+
+          {/* Starting Camera State */}
+          {isStartingCamera && !isCameraMode && (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <Loader2 className="w-12 h-12 animate-spin text-primary" />
+              <p className="text-lg text-muted-foreground">Starting camera...</p>
+            </div>
+          )}
+
+          {/* Processing State */}
+          {isProcessing && !isCameraMode && (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <Loader2 className="w-12 h-12 animate-spin text-primary" />
+              <p className="text-lg text-muted-foreground">Processing your photo...</p>
+            </div>
+          )}
+
+          {/* Image Preview (after capture or upload) */}
+          {selectedImage && !isCameraMode && !isProcessing && (
+            <div className="space-y-4">
+              <div className="celebration-polaroid-frame mx-auto">
+                <img
+                  src={selectedImage}
+                  alt="Monthly completion memory"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="flex gap-3 justify-center">
+                {isSelfieCapture && (
+                  <Button
+                    variant="outline"
+                    onClick={handleRetake}
+                    disabled={isStartingCamera || isProcessing}
+                  >
+                    Retake Photo
+                  </Button>
+                )}
                 <Button
-                  variant="default"
                   onClick={handleSaveToMemories}
                   disabled={isProcessing}
-                  className="flex-1 h-12 text-base font-lora-italic bg-[oklch(0.577_0.245_27.325)] hover:bg-[oklch(0.52_0.23_27.325)] text-white disabled:opacity-50"
+                  className="min-w-[160px]"
                 >
                   Save to Memories
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleRetake}
-                  disabled={isProcessing}
-                  className="flex-1 h-12 text-base font-lora-italic"
-                >
-                  Retake
-                </Button>
               </div>
-            ) : (
-              /* Show original buttons before selfie capture */
-              <div className="flex flex-col sm:flex-row gap-3">
+            </div>
+          )}
+
+          {/* Initial State - No Image Selected */}
+          {!selectedImage && !isCameraMode && !isStartingCamera && !isProcessing && (
+            <div className="space-y-6">
+              {/* Hero Image */}
+              <div className="relative aspect-[3/2] rounded-lg overflow-hidden">
+                <img
+                  src="/assets/generated/celebration-hero.dim_900x600.png"
+                  alt="Celebration"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
                 <Button
-                  variant="default"
                   onClick={handleTakeSelfie}
-                  disabled={isStartingCamera || activeFlowIdRef.current !== null || isProcessing || countdown !== null || isCapturingPhoto}
-                  className="flex-1 h-12 text-base font-lora-italic bg-[oklch(0.577_0.245_27.325)] hover:bg-[oklch(0.52_0.23_27.325)] text-white disabled:opacity-50"
+                  disabled={isSupported === false || isStartingCamera}
+                  className="w-full"
+                  size="lg"
                 >
                   {isStartingCamera ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                       Starting Camera...
                     </>
                   ) : (
-                    'Take Selfie & Share'
+                    'Take a Selfie'
                   )}
                 </Button>
+
+                <div className="relative">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isProcessing}
+                    className="w-full"
+                    size="lg"
+                  >
+                    <Upload className="w-5 h-5 mr-2" />
+                    Upload Photo
+                  </Button>
+                </div>
+
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   onClick={handleMaybeLater}
-                  disabled={isProcessing}
-                  className="flex-1 h-12 text-base font-lora-italic"
+                  className="w-full"
+                  size="lg"
                 >
                   Maybe Later
                 </Button>
               </div>
-            )}
-            
-            {/* Upload button - only show when not in selfie preview mode */}
-            {!isInSelfiePreview && (
-              <Button
-                variant="secondary"
-                onClick={handleUploadClick}
-                disabled={isProcessing}
-                className="w-full h-12 text-base font-lora-italic"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Photo Instead
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
 
-          {/* Hidden file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-            aria-hidden="true"
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Centered notification for save success */}
-      <CenteredNotification
-        message="Successfully saved! 📸"
-        visible={showSaveNotification}
-        onDismiss={handleNotificationDismiss}
-        duration={5000}
-      />
-    </>
+              {isSupported === false && (
+                <p className="text-sm text-destructive text-center">
+                  Camera is not supported on this device. Please use the upload option.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

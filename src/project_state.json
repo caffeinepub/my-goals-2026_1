@@ -3,22 +3,27 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [
-    "Bug: After pressing \"Back to the dashboard\" then \"View yearly summary\", the congrats modal appears unexpectedly."
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-the-yearly-summary-completion-transition-logic-so-the-monthlycompletioncelebrationmodal-congrats-modal-does-not-auto-open-when-navigating-from-yearly-summary-to-dashboard-via-the-back-to-dashboard-button-and-then-reopening-yearly-summary-via-view-yearly-summary",
-      "title": "Fix the Yearly Summary completion-transition logic so the MonthlyCompletionCelebrationModal (congrats modal) does not auto-open when navigating from Yearly Summary to Dashboard via the \"Back to dashboard\" button and then reopening Yearly Summary via \"View yearly summary\".",
+      "id": "feature-when-the-user-clicks-the-save-to-memories-button-in-the-congrats-monthlycompletioncelebrationmodal-modal-immediately-hide-close-the-modal-and-then-show-a-pop-up-notification-for-3-seconds-confirming-the-save",
+      "title": "When the user clicks the \"Save to Memories\" button in the Congrats (MonthlyCompletionCelebrationModal) modal, immediately hide/close the modal and then show a pop-up notification for 3 seconds confirming the save.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Prevent congrats (celebration) modal from reopening when returning to Yearly Summary",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "In the Congrats modal, when user clicks 'Save to Memories', hide the modal and show a pop-up notification for 3 seconds.",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Close Congrats modal on Save to Memories and show 3-second pop-up notification",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

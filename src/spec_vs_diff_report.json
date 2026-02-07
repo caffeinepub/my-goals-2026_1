@@ -1,29 +1,38 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-06T23:20:44.447Z",
-  "summary": "Diff shows updates centered on YearlySummaryTable state/transition tracking (adding refs for previous completion and an initialization guard) consistent with preventing the celebration modal from auto-opening on remount while preserving in-session transition detection. No clear unmet functional requirements are evidenced in the truncated diff. Some non-product/meta files were modified that were not requested by the BuildRequest.",
-  "missing_requirements": [],
+  "generatedAt": "2026-02-07T00:31:36.873Z",
+  "summary": "Diff shows updates in MonthlyCompletionCelebrationModal.tsx (including importing `toast` from `sonner` and adding various camera/capture-flow refs/teardown logic), plus changes to `frontend-file-summaries.txt` and `project_state.json`. From the truncated diff summary, the core requested behavior (close modal on Save to Memories + show a 3s pop-up toast outside the modal while preserving save/refresh behavior) is not clearly evidenced.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "On clicking \"Save to Memories\" in MonthlyCompletionCelebrationModal, immediately close the modal and then show a pop-up notification for ~3 seconds confirming the save, visible outside the modal, while still saving and refreshing the monthly memories UI as today.",
+      "reason": "The diff excerpt shows `toast` imported but does not show any click handler changes that (a) call `onOpenChange(false)` immediately, (b) trigger a toast/notification with ~3000ms auto-dismiss after the click, (c) ensure the toast is not rendered inside the modal, or (d) confirm that the save/refresh callback flow remains intact. Because the file is truncated, these behaviors cannot be verified from the provided evidence.",
+      "evidence": [
+        "frontend/src/components/MonthlyCompletionCelebrationModal.tsx (truncated)"
+      ]
+    }
+  ],
   "hallucinated_features": [
     {
-      "description": "Added/updated project tracking metadata (project_state.json) for the request.",
-      "reason": "BuildRequest only asks for a frontend UI-state bug fix; it does not request updating project metadata/state files.",
+      "description": "Modifying project tracking/metadata (`project_state.json`) to add new_feature_requests AR-1/AR-2 entries and mark them pending.",
+      "reason": "BuildRequest does not ask for any changes to project metadata/state files; it only specifies UI behavior changes in the Congrats modal and notification behavior.",
       "evidence": [
         "project_state.json"
       ]
     },
     {
-      "description": "Updated repository documentation/summary artifact (frontend-file-summaries.txt).",
-      "reason": "BuildRequest does not ask to update file summary documentation; it only specifies implementing the fix in/through YearlySummaryTable.tsx.",
+      "description": "Updating `frontend-file-summaries.txt` with broad feature descriptions unrelated to the specific \"close modal + 3-second pop-up\" request.",
+      "reason": "BuildRequest does not request maintaining or changing documentation/summaries; it only specifies a functional UI change.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "frontend-file-summaries.txt (truncated)"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.56,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/YearlySummaryTable.tsx",
+    "frontend/src/components/MonthlyCompletionCelebrationModal.tsx",
     "project_state.json"
   ]
 }
